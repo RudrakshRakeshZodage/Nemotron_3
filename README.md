@@ -12,13 +12,16 @@ A production-grade AI SaaS platform built for the NVIDIA Nemotron 3 Workshop.
 ## 📽️ Visual Demo
 
 <div align="center">
-  <h3>Full Platform Walkthrough</h3>
-  <video src="./1.mp4" width="90%" controls muted autoplay loop></video>
+  <h3>📽️ Full Platform Walkthrough</h3>
+  <video src="./1.mp4" width="100%" controls muted autoplay loop>
+    Your browser does not support the video tag. <a href="./1.mp4">Watch the video here</a>.
+  </video>
+  <p><i>If the video doesn't load, <a href="./1.mp4">click here to watch it directly.</a></i></p>
+  <br/>
+  <img src="./1.png" width="100%" alt="Landing Page" />
   <br/><br/>
-  <img src="./1.png" width="80%" alt="Landing Page" />
-  <br/><br/>
-  <img src="./11.png" width="48%" alt="Dashboard" />
-  <img src="./22.png" width="48%" alt="Agent Studio" />
+  <img src="./11.png" width="49%" alt="Dashboard Home" />
+  <img src="./22.png" width="49%" alt="Agent Studio" />
 </div>
 
 ---
