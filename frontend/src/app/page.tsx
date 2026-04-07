@@ -4,8 +4,8 @@ import { motion } from 'framer-motion'
 import Link from 'next/link'
 import {
   Zap, Bot, Code, Cpu, Globe, BookOpen, ArrowRight,
-  ChevronRight, Github, Twitter, Star, Check, Users,
-  Layers, BarChart2, Shield, Rocket, Brain, Terminal
+  ChevronRight, GitBranch, Share2, Star, Check, Users,
+  Layers, BarChart2, Shield, Rocket, Sparkles, Terminal
 } from 'lucide-react'
 
 // ── Navbar ──────────────────────────────────────────────────────────────────
@@ -146,7 +146,7 @@ function HeroSection() {
 // ── Features ─────────────────────────────────────────────────────────────────
 const features = [
   { icon: Bot, title: 'Agentic AI Workflows', desc: 'Decompose complex tasks into structured steps. Nemotron plans, codes, and optimizes autonomously.', color: '#76b900' },
-  { icon: Brain, title: 'Multi-Token Prediction', desc: 'Predict multiple tokens simultaneously for 5x faster inference without sacrificing accuracy.', color: '#00d4ff' },
+  { icon: Sparkles, title: 'Multi-Token Prediction', desc: 'Predict multiple tokens simultaneously for 5x faster inference without sacrificing accuracy.', color: '#00d4ff' },
   { icon: Cpu, title: 'GPU-Accelerated Inference', desc: 'Built on NVIDIA hardware with Tensor Core optimization for enterprise-grade throughput.', color: '#7c3aed' },
   { icon: Code, title: 'Code Generation', desc: 'Generate production-ready code in 50+ languages with automated testing and documentation.', color: '#ec4899' },
   { icon: BookOpen, title: 'Research & Writing', desc: 'Create academic papers, technical reports, and comprehensive blogs with proper citations.', color: '#f59e0b' },
@@ -200,7 +200,7 @@ function FeaturesSection() {
 // ── How It Works ──────────────────────────────────────────────────────────────
 const steps = [
   { step: '01', title: 'Enter Your Prompt', desc: 'Describe your task in natural language. NemoCore understands complex, multi-part requests.', icon: Terminal },
-  { step: '02', title: 'Nemotron Processes', desc: 'MoE routing, multi-token prediction, and reasoning chains work in parallel to plan your solution.', icon: Brain },
+  { step: '02', title: 'Nemotron Processes', desc: 'MoE routing, multi-token prediction, and reasoning chains work in parallel to plan your solution.', icon: Sparkles },
   { step: '03', title: 'Get Structured Output', desc: 'Receive step-by-step results with code, explanations, citations, and ready-to-deploy artifacts.', icon: Rocket },
 ]
 
@@ -482,8 +482,8 @@ function Footer() {
               Agentic AI Platform powered by NVIDIA Nemotron 3. Built for the NVIDIA AI Workshop 2026.
             </p>
             <div style={{ display: 'flex', gap: 12 }}>
-              <a href="https://github.com" target="_blank" className="btn-ghost" style={{ padding: 8, border: '1px solid var(--border-color)', borderRadius: 8 }}><Github size={16} /></a>
-              <a href="https://twitter.com" target="_blank" className="btn-ghost" style={{ padding: 8, border: '1px solid var(--border-color)', borderRadius: 8 }}><Twitter size={16} /></a>
+              <a href="https://github.com" target="_blank" className="btn-ghost" style={{ padding: 8, border: '1px solid var(--border-color)', borderRadius: 8 }}><GitBranch size={16} /></a>
+              <a href="https://twitter.com" target="_blank" className="btn-ghost" style={{ padding: 8, border: '1px solid var(--border-color)', borderRadius: 8 }}><Share2 size={16} /></a>
             </div>
           </div>
           {[
