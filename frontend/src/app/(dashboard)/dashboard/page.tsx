@@ -99,9 +99,10 @@ export default function DashboardPage() {
               key={s.label} 
               initial={{ opacity: 0, scale: 0.95 }} 
               animate={{ opacity: 1, scale: 1 }} 
-              transition={{ delay: i * 0.1 }}
+              whileHover={{ scale: 1.02, y: -4 }}
+              transition={{ delay: i * 0.1, type: "spring", stiffness: 300 }}
               className="glass-premium"
-              style={{ padding: 24, border: '1px solid rgba(255,255,255,0.05)' }}
+              style={{ padding: 24, border: '1px solid rgba(255,255,255,0.05)', cursor: 'pointer' }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
                 <div style={{ width: 44, height: 44, borderRadius: 12, background: `${s.color}10`, display: 'flex', alignItems: 'center', justifyContent: 'center', border: `1px solid ${s.color}20` }}>
