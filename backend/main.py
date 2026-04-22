@@ -24,7 +24,9 @@ app.add_middleware(
 
 NVIDIA_API_KEY = os.getenv("NVIDIA_API_KEY", "")
 NVIDIA_BASE_URL = os.getenv("NVIDIA_BASE_URL", "https://integrate.api.nvidia.com/v1")
-MOCK_MODE = not NVIDIA_API_KEY or NVIDIA_API_KEY.startswith("nvapi-xxx")
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
+OPENROUTER_BASE_URL = os.getenv("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1")
+MOCK_MODE = (not NVIDIA_API_KEY or NVIDIA_API_KEY.startswith("nvapi-xxx")) and (not OPENROUTER_API_KEY or OPENROUTER_API_KEY.startswith("sk-or-xxx"))
 
 # ── Models ────────────────────────────────────────────────────────────────────
 
@@ -61,12 +63,12 @@ class SaveProjectRequest(BaseModel):
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
-async def stream_nvidia(messages: list, model: str, temperature: float, max_tokens: int):
-    """Stream from NVIDIA API or mock."""
+async def stream_chat(messages: list, model: str, temperature: float, max_tokens: int):
+    """Stream from appropriate API based on model prefix."""
     if MOCK_MODE:
         mock_response = (
             "I'm **NemoCore AI**, powered by NVIDIA Nemotron 3. "
-            "This is a simulated response — add your `NVIDIA_API_KEY` to `.env` for live responses.\n\n"
+            "This is a simulated response — add your API key to `.env` for live responses.\n\n"
             "```python\n# Example code output\ndef hello_nemotron():\n    return 'NVIDIA Nemotron 3 is live!'\n```\n\n"
             "Nemotron 3 features:\n- 🚀 Multi-token prediction\n- 🧠 Hybrid Transformer + Mamba architecture\n- ⚡ 5x throughput vs standard models\n- 🔬 Latent Mixture-of-Experts"
         )
@@ -76,10 +78,29 @@ async def stream_nvidia(messages: list, model: str, temperature: float, max_toke
         yield "data: [DONE]\n\n"
         return
 
-    headers = {
-        "Authorization": f"Bearer {NVIDIA_API_KEY}",
-        "Content-Type": "application/json",
-    }
+    # Determine API provider based on model prefix
+    if model.startswith("nvidia/"):
+        api_key = NVIDIA_API_KEY
+        base_url = NVIDIA_BASE_URL
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+        }
+    elif model.startswith("openrouter/"):
+        api_key = OPENROUTER_API_KEY
+        base_url = OPENROUTER_BASE_URL
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+            "HTTP-Referer": os.getenv("FRONTEND_URL", "http://localhost:3000"),
+            "X-Title": "NemoCore AI",
+        }
+        # Convert openrouter model name to actual model ID
+        if model == "openrouter/nvidia-nemotron-3-nano-30b-a3b":
+            model = "nvidia/nemotron-3-nano-30b-a3b"
+    else:
+        raise HTTPException(status_code=400, detail=f"Unsupported model: {model}")
+
     payload = {
         "model": model,
         "messages": messages,
@@ -87,11 +108,19 @@ async def stream_nvidia(messages: list, model: str, temperature: float, max_toke
         "max_tokens": max_tokens,
         "stream": True,
     }
+
     async with httpx.AsyncClient(timeout=120) as client:
-        async with client.stream("POST", f"{NVIDIA_BASE_URL}/chat/completions", headers=headers, json=payload) as resp:
-            async for line in resp.aiter_lines():
-                if line.startswith("data:"):
-                    yield f"{line}\n\n"
+        try:
+            async with client.stream("POST", f"{base_url}/chat/completions", headers=headers, json=payload) as resp:
+                if resp.status_code != 200:
+                    error_text = await resp.aread()
+                    raise HTTPException(status_code=resp.status_code, detail=f"API Error: {error_text.decode()}")
+
+                async for line in resp.aiter_lines():
+                    if line.startswith("data:"):
+                        yield f"{line}\n\n"
+        except httpx.RequestError as e:
+            raise HTTPException(status_code=500, detail=f"Request failed: {str(e)}")
 
 
 async def generate_full(prompt: str, model: str = "nvidia/llama-3.1-nemotron-70b-instruct") -> str:
