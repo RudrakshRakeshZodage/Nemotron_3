@@ -13,6 +13,7 @@ const models = [
   { id: 'nvidia/llama-3.1-nemotron-70b-instruct', label: 'Nemotron 70B', badge: 'BEST' },
   { id: 'nvidia/llama-3.1-nemotron-8b-instruct', label: 'Nemotron 8B', badge: 'FAST' },
   { id: 'nvidia/llama-3.1-nemotron-nano-8b-v1', label: 'Nemotron Nano', badge: 'LITE' },
+  { id: 'openrouter/nvidia-nemotron-3-nano-30b-a3b', label: 'Nemotron Nano 30B', badge: 'FREE' },
 ]
 
 const suggestions = [

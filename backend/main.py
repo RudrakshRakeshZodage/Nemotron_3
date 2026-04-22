@@ -128,7 +128,29 @@ async def generate_full(prompt: str, model: str = "nvidia/llama-3.1-nemotron-70b
     if MOCK_MODE:
         return f"[MOCK] Generated response for: {prompt[:80]}..."
 
-    headers = {"Authorization": f"Bearer {NVIDIA_API_KEY}", "Content-Type": "application/json"}
+    # Determine API provider based on model prefix
+    if model.startswith("nvidia/"):
+        api_key = NVIDIA_API_KEY
+        base_url = NVIDIA_BASE_URL
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+        }
+    elif model.startswith("openrouter/"):
+        api_key = OPENROUTER_API_KEY
+        base_url = OPENROUTER_BASE_URL
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+            "HTTP-Referer": os.getenv("FRONTEND_URL", "http://localhost:3000"),
+            "X-Title": "NemoCore AI",
+        }
+        # Convert openrouter model name to actual model ID
+        if model == "openrouter/nvidia-nemotron-3-nano-30b-a3b":
+            model = "nvidia/nemotron-3-nano-30b-a3b"
+    else:
+        raise HTTPException(status_code=400, detail=f"Unsupported model: {model}")
+
     payload = {
         "model": model,
         "messages": [{"role": "user", "content": prompt}],
@@ -137,7 +159,7 @@ async def generate_full(prompt: str, model: str = "nvidia/llama-3.1-nemotron-70b
         "stream": False,
     }
     async with httpx.AsyncClient(timeout=120) as client:
-        resp = await client.post(f"{NVIDIA_BASE_URL}/chat/completions", headers=headers, json=payload)
+        resp = await client.post(f"{base_url}/chat/completions", headers=headers, json=payload)
         resp.raise_for_status()
         return resp.json()["choices"][0]["message"]["content"]
 
