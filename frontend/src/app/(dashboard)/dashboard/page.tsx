@@ -192,6 +192,69 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* Usage Analytics Chart */}
+      <motion.div 
+        initial={{ opacity: 0, y: 30 }} 
+        animate={{ opacity: 1, y: 0 }} 
+        transition={{ delay: 0.6 }}
+        className="glass-card"
+        style={{ padding: 32, marginBottom: 48, border: '1px solid rgba(255,255,255,0.05)' }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 28 }}>
+          <h2 style={{ fontWeight: 800, fontSize: '1.25rem', display: 'flex', alignItems: 'center', gap: 10 }}>
+            <BarChart2 size={20} color="var(--nemo-green)" /> Usage Analytics
+          </h2>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Last 7 days</span>
+          </div>
+        </div>
+        <div style={{ height: 300 }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={usageData}>
+              <defs>
+                <linearGradient id="tokensGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="var(--nemo-green)" stopOpacity={0.3}/>
+                  <stop offset="95%" stopColor="var(--nemo-green)" stopOpacity={0}/>
+                </linearGradient>
+                <linearGradient id="promptsGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="var(--nemo-blue)" stopOpacity={0.3}/>
+                  <stop offset="95%" stopColor="var(--nemo-blue)" stopOpacity={0}/>
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+              <XAxis dataKey="day" stroke="var(--text-secondary)" fontSize={12} />
+              <YAxis stroke="var(--text-secondary)" fontSize={12} />
+              <Tooltip 
+                contentStyle={{ 
+                  background: 'var(--bg-secondary)', 
+                  border: '1px solid var(--border-color)',
+                  borderRadius: 8,
+                  color: 'var(--text-primary)'
+                }}
+              />
+              <Area 
+                type="monotone" 
+                dataKey="tokens" 
+                stroke="var(--nemo-green)" 
+                fillOpacity={1} 
+                fill="url(#tokensGradient)" 
+                strokeWidth={2}
+                name="Tokens Used"
+              />
+              <Area 
+                type="monotone" 
+                dataKey="prompts" 
+                stroke="var(--nemo-blue)" 
+                fillOpacity={1} 
+                fill="url(#promptsGradient)" 
+                strokeWidth={2}
+                name="Prompts"
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+      </motion.div>
+
       {/* Dynamic Infrastructure Metrics */}
       <motion.div 
         initial={{ opacity: 0, y: 30 }} 
