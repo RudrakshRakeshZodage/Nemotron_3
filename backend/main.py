@@ -155,7 +155,7 @@ async def health():
 async def chat(req: ChatRequest):
     messages = [{"role": m.role, "content": m.content} for m in req.messages]
     return StreamingResponse(
-        stream_nvidia(messages, req.model, req.temperature, req.max_tokens),
+        stream_chat(messages, req.model, req.temperature, req.max_tokens),
         media_type="text/event-stream",
         headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
     )
