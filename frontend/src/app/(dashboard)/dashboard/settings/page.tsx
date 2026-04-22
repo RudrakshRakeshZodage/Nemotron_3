@@ -26,6 +26,10 @@ export default function SettingsPage() {
     copyToClipboard(apiKey); setCopiedKey(true); setTimeout(() => setCopiedKey(false), 2000)
   }
 
+  const handleCopyOpenRouterKey = () => {
+    copyToClipboard(openRouterKey); setCopiedOpenRouterKey(true); setTimeout(() => setCopiedOpenRouterKey(false), 2000)
+  }
+
   const section = (title: string, icon: React.ReactNode, children: React.ReactNode) => (
     <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="glass-card" style={{ padding: 28, marginBottom: 20 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24, paddingBottom: 16, borderBottom: '1px solid var(--border-color)' }}>
@@ -75,22 +79,43 @@ export default function SettingsPage() {
 
       {section('API Keys', <Key size={18} color="#00d4ff" />,
         <div>
-          <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginBottom: 16, lineHeight: 1.6 }}>
-            Add your <a href="https://build.nvidia.com" target="_blank" style={{ color: 'var(--nemo-green)' }}>NVIDIA API key</a> from build.nvidia.com to enable live Nemotron 3 responses. Without a key, the app runs in demo mode.
-          </p>
-          <label className="form-label">NVIDIA API Key</label>
-          <div style={{ position: 'relative', marginBottom: 12 }}>
-            <input className="form-input" type={showKey ? 'text' : 'password'} value={apiKey} onChange={e => setApiKey(e.target.value)} style={{ paddingRight: 80 }} />
-            <div style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', display: 'flex', gap: 4 }}>
-              <button onClick={() => setShowKey(!showKey)} className="btn-ghost" style={{ padding: '4px 6px' }}>
-                {showKey ? <EyeOff size={13} /> : <Eye size={13} />}
-              </button>
-              <button onClick={handleCopyKey} className="btn-ghost" style={{ padding: '4px 6px' }}>
-                {copiedKey ? <Check size={13} color="var(--nemo-green)" /> : <Copy size={13} />}
-              </button>
+          <div style={{ marginBottom: 24 }}>
+            <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginBottom: 16, lineHeight: 1.6 }}>
+              Add your <a href="https://build.nvidia.com" target="_blank" style={{ color: 'var(--nemo-green)' }}>NVIDIA API key</a> from build.nvidia.com to enable live Nemotron 3 responses.
+            </p>
+            <label className="form-label">NVIDIA API Key</label>
+            <div style={{ position: 'relative', marginBottom: 12 }}>
+              <input className="form-input" type={showKey ? 'text' : 'password'} value={apiKey} onChange={e => setApiKey(e.target.value)} style={{ paddingRight: 80 }} />
+              <div style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', display: 'flex', gap: 4 }}>
+                <button onClick={() => setShowKey(!showKey)} className="btn-ghost" style={{ padding: '4px 6px' }}>
+                  {showKey ? <EyeOff size={13} /> : <Eye size={13} />}
+                </button>
+                <button onClick={handleCopyKey} className="btn-ghost" style={{ padding: '4px 6px' }}>
+                  {copiedKey ? <Check size={13} color="var(--nemo-green)" /> : <Copy size={13} />}
+                </button>
+              </div>
             </div>
           </div>
-          <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Your API key is stored locally and never sent to our servers.</p>
+
+          <div>
+            <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginBottom: 16, lineHeight: 1.6 }}>
+              Or use <a href="https://openrouter.ai" target="_blank" style={{ color: 'var(--nemo-green)' }}>OpenRouter</a> for free access to NVIDIA Nemotron 3 Nano 30B A3B model.
+            </p>
+            <label className="form-label">OpenRouter API Key</label>
+            <div style={{ position: 'relative', marginBottom: 12 }}>
+              <input className="form-input" type={showOpenRouterKey ? 'text' : 'password'} value={openRouterKey} onChange={e => setOpenRouterKey(e.target.value)} style={{ paddingRight: 80 }} />
+              <div style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', display: 'flex', gap: 4 }}>
+                <button onClick={() => setShowOpenRouterKey(!showOpenRouterKey)} className="btn-ghost" style={{ padding: '4px 6px' }}>
+                  {showOpenRouterKey ? <EyeOff size={13} /> : <Eye size={13} />}
+                </button>
+                <button onClick={handleCopyOpenRouterKey} className="btn-ghost" style={{ padding: '4px 6px' }}>
+                  {copiedOpenRouterKey ? <Check size={13} color="var(--nemo-green)" /> : <Copy size={13} />}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Your API keys are stored locally and never sent to our servers.</p>
         </div>
       )}
 
