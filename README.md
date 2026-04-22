@@ -97,6 +97,7 @@ NEXT_PUBLIC_API_URL=http://localhost:8000
 **Backend** `backend/.env`:
 ```env
 NVIDIA_API_KEY=nvapi-xxxxxxxxxxxxxxxxxxxx
+OPENROUTER_API_KEY=sk-or-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_SERVICE_KEY=your-service-role-key
 ```
@@ -127,6 +128,13 @@ Open [http://localhost:3000](http://localhost:3000)
 2. Sign up / log in
 3. Navigate to **API Keys** → Create key
 4. Copy the `nvapi-...` key into `backend/.env`
+
+### OpenRouter (Free Alternative)
+1. Go to [https://openrouter.ai](https://openrouter.ai)
+2. Sign up / log in
+3. Navigate to **API Keys** → Create key
+4. Copy the `sk-or-...` key into `backend/.env` as `OPENROUTER_API_KEY`
+5. Use the **Nemotron 3 Nano 30B A3B** model (free tier available)
 
 ### Supabase
 1. Go to [https://supabase.com](https://supabase.com)
