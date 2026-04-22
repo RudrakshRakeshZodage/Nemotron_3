@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { MessageSquare, Bot, FolderOpen, FileText, BookOpen, Zap, TrendingUp, Hash, Cpu, Clock, ArrowRight, Plus, Activity, Server, ShieldCheck } from 'lucide-react'
 import { formatNumber } from '@/lib/utils'
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts'
 
 const stats = [
   { label: 'Total Prompts', value: 148, icon: Hash, color: '#76b900', change: '+12%' },
@@ -25,6 +26,16 @@ const recentActivity = [
   { action: 'Blog', detail: 'Generated "AI in 2026: What\'s Next"', time: '3 hours ago', icon: FileText, color: '#7c3aed' },
   { action: 'Paper', detail: 'Created research paper on LLM efficiency', time: 'Yesterday', icon: BookOpen, color: '#ec4899' },
   { action: 'Chat', detail: 'Debugged React useEffect infinite loop', time: 'Yesterday', icon: MessageSquare, color: '#76b900' },
+]
+
+const usageData = [
+  { day: 'Mon', tokens: 1200, prompts: 45 },
+  { day: 'Tue', tokens: 1800, prompts: 62 },
+  { day: 'Wed', tokens: 2400, prompts: 78 },
+  { day: 'Thu', tokens: 1600, prompts: 51 },
+  { day: 'Fri', tokens: 2800, prompts: 89 },
+  { day: 'Sat', tokens: 2100, prompts: 67 },
+  { day: 'Sun', tokens: 1900, prompts: 58 },
 ]
 
 const Sparkline = ({ color }: { color: string }) => (
