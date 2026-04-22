@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion'
 import Link from 'next/link'
-import { MessageSquare, Bot, FolderOpen, FileText, BookOpen, Zap, TrendingUp, Hash, Cpu, Clock, ArrowRight, Plus, Activity, Server, ShieldCheck } from 'lucide-react'
+import { MessageSquare, Bot, FolderOpen, FileText, BookOpen, Zap, TrendingUp, Hash, Cpu, Clock, ArrowRight, Plus, Activity, Server, ShieldCheck, BarChart2 } from 'lucide-react'
 import { formatNumber } from '@/lib/utils'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts'
 
