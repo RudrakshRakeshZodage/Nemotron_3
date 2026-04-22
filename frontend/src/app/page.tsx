@@ -7,6 +7,7 @@ import {
   ChevronRight, GitBranch, Share2, Star, Check, Users,
   Layers, BarChart2, Shield, Rocket, Sparkles, Terminal
 } from 'lucide-react'
+import ThemeToggle from '@/components/ThemeToggle'
 
 // ── Navbar ──────────────────────────────────────────────────────────────────
 function Navbar() {
@@ -36,6 +37,7 @@ function Navbar() {
         {['Features', 'How It Works', 'Use Cases', 'Pricing'].map(item => (
           <a key={item} href={`#${item.toLowerCase().replace(/ /g, '-')}`} className="btn-ghost" style={{ fontSize: '0.85rem' }}>{item}</a>
         ))}
+        <ThemeToggle />
         <Link href="/login" className="btn-ghost" style={{ fontSize: '0.85rem' }}>Log in</Link>
         <Link href="/signup" className="btn-primary" style={{ padding: '9px 20px', fontSize: '0.85rem' }}>
           Get Started <ArrowRight size={14} />

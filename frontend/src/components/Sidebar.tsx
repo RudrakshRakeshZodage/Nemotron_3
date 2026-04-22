@@ -9,6 +9,7 @@ import {
   Zap, X, ChevronLeft
 } from 'lucide-react'
 import { useAuth } from '@/lib/auth-context'
+import ThemeToggle from './ThemeToggle'
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -58,9 +59,12 @@ export default function Sidebar({ open, onClose }: { open?: boolean; onClose?: (
               Nemo<span style={{ color: 'var(--nemo-green)' }}>Core</span>
             </span>
           </Link>
-          <button className="btn-ghost" onClick={onClose} style={{ padding: 6, display: 'flex' }}>
-            <X size={16} />
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <ThemeToggle />
+            <button className="btn-ghost" onClick={onClose} style={{ padding: 6, display: 'flex' }}>
+              <X size={16} />
+            </button>
+          </div>
         </div>
 
         {/* Nav */}
