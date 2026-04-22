@@ -13,6 +13,9 @@ export default function SettingsPage() {
   const [showKey, setShowKey] = useState(false)
   const [saved, setSaved] = useState(false)
   const [copiedKey, setCopiedKey] = useState(false)
+  const [openRouterKey, setOpenRouterKey] = useState('sk-or-xxxxxxxxxxxxxxxxxx')
+  const [showOpenRouterKey, setShowOpenRouterKey] = useState(false)
+  const [copiedOpenRouterKey, setCopiedOpenRouterKey] = useState(false)
   const [notifications, setNotifications] = useState({ email: true, usage: true, updates: false })
 
   const handleSave = () => {
