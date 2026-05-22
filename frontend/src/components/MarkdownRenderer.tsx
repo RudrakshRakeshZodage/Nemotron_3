@@ -6,6 +6,7 @@ import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import { useState } from 'react'
 import { Check, Copy } from 'lucide-react'
 import { copyToClipboard } from '@/lib/utils'
+import CustomFigure from './CustomFigure'
 
 export default function MarkdownRenderer({ content }: { content: string }) {
   return (
@@ -22,6 +23,16 @@ export default function MarkdownRenderer({ content }: { content: string }) {
                 background: 'rgba(118,185,0,0.15)', color: 'var(--nemo-green)',
                 padding: '2px 6px', borderRadius: 4, fontFamily: 'JetBrains Mono, monospace', fontSize: '0.85em'
               }} {...props}>{children}</code>
+            )
+          },
+          img: ({ src, alt }) => {
+            if (src?.startsWith('figure:')) {
+              const figType = src.replace('figure:', '')
+              return <CustomFigure type={figType} caption={alt} />
+            }
+            return (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={src} alt={alt} style={{ maxWidth: '100%', borderRadius: 8, margin: '16px 0' }} />
             )
           },
           h1: ({ children }) => <h1 style={{ fontSize: '1.4rem', fontWeight: 700, margin: '20px 0 10px', color: 'var(--text-primary)' }}>{children}</h1>,

@@ -238,36 +238,36 @@ Return ONLY the JSON array, no markdown, no explanation."""
 
 @app.post("/generate-blog")
 async def generate_blog(req: BlogRequest, request: Request):
-    nvidia_key = request.headers.get("x-nvidia-api-key", "")
-    openrouter_key = request.headers.get("x-openrouter-api-key", "")
-    prompt = f"""Write a comprehensive, engaging {req.tone} blog post about "{req.topic}".
-
-Structure:
-- A compelling title
-- Introduction (hook + thesis)
-- 4-5 main sections with subheadings
-- Real examples and data points
-- Conclusion with CTA
-
-Format with proper markdown. Length: {req.length} (medium = ~800 words)."""
-
-    has_nvidia = nvidia_key or (NVIDIA_API_KEY and not NVIDIA_API_KEY.startswith("nvapi-xxx") and NVIDIA_API_KEY != "")
+    nvidia_key = reques    has_nvidia = nvidia_key or (NVIDIA_API_KEY and not NVIDIA_API_KEY.startswith("nvapi-xxx") and NVIDIA_API_KEY != "")
     if not has_nvidia:
         content = f"""# {req.topic}: The Future of AI is Here
+
+![NemoCore AI Banner](figure:blog-banner)
 
 ## Introduction
 The landscape of artificial intelligence is rapidly evolving, and **{req.topic}** stands at the forefront of this revolution. In this comprehensive guide, we'll explore how this technology is reshaping industries and what it means for developers, researchers, and businesses alike.
 
 ## What Makes It Revolutionary
-NVIDIA Nemotron 3 introduces a groundbreaking **Transformer + Mamba hybrid architecture** that delivers unprecedented performance:
-- 🚀 **5x throughput** compared to standard transformer models
-- 🧠 **Latent Mixture-of-Experts** for dynamic computation
-- ⚡ **Multi-token prediction** for faster inference
+NVIDIA Nemotron 3 introduces a groundbreaking **Transformer + Mamba hybrid architecture** that delivers unprecedented performance. By marrying the global context mapping of traditional transformer attention mechanisms with the linear-time execution bounds of state-space models, Nemotron 3 represents a generational leap in model performance.
+
+### Key Performance Dimensions:
+- 🚀 **5x throughput** compared to standard transformer models.
+- 🧠 **Latent Mixture-of-Experts (MoE)** routing for dynamic computation.
+- ⚡ **Multi-token prediction** for ultra-low latency response streams.
+
+## Adoption and Market Penetration
+The adoption of hybrid architectures has accelerated exponentially over the past three years as companies seek cost-effective scaling solutions:
+
+![Generative AI Adoption Trend](figure:blog-chart)
+
+As shown above, the transition from legacy transformer models to hybrid-MoE engines is projected to reach nearly 95% of enterprise production environments by late 2026.
 
 ## Real-World Applications
-From autonomous code generation to complex research synthesis, the applications are limitless...
+From autonomous code generation to complex research synthesis, the applications are limitless. Developers can leverage these models for deep logical reasoning and real-time streaming operations:
 
 ## Implementation Guide
+Below is a complete implementation example showcasing how to initialize and connect to the NemoCore API and stream responses using the official python SDK:
+
 ```python
 import openai
 
@@ -278,12 +278,18 @@ client = openai.OpenAI(
 
 response = client.chat.completions.create(
     model="nvidia/llama-3.1-nemotron-70b-instruct",
-    messages=[{{"role": "user", "content": "Hello, Nemotron!"}}]
+    messages=[{"role": "user", "content": "Hello, Nemotron!"}],
+    stream=True
 )
+
+for chunk in response:
+    content = chunk.choices[0].delta.content
+    if content:
+        print(content, end="", flush=True)
 ```
 
 ## The Road Ahead
-As AI continues to advance, platforms like NemoCore AI will democratize access to enterprise-grade intelligence...
+As AI continues to advance, platforms like NemoCore AI will democratize access to enterprise-grade intelligence, enabling teams to build secure, low-latency agentic frameworks.
 
 ## Conclusion
 The future of AI is agentic, efficient, and accessible. **Start building with NemoCore AI today.**"""
@@ -310,81 +316,121 @@ async def generate_paper(req: PaperRequest, request: Request):
     prompt = f"""Write a formal academic research paper titled "{req.title}" in the domain of {req.domain}.
 Keywords: {", ".join(req.keywords) if req.keywords else "AI, machine learning, neural networks"}
 
-Include these sections in proper academic format:
-1. Abstract (150-200 words)
-2. Introduction
-3. Related Work
-4. Methodology
-5. Experimental Results
-6. Discussion
-7. Conclusion
-8. References (5-8 mock references in APA format)
+Use the following IEEE structural formatting:
+- Roman numerals for main section headers (e.g., "# I. INTRODUCTION", "# II. RELATED WORK", "# III. METHODOLOGY", "# IV. EXPERIMENTAL RESULTS", "# V. DISCUSSION", "# VI. CONCLUSION", "# VII. REFERENCES").
+- Alphabetical labels for subsections (e.g., "## A. Subsection Title").
+- Include 2 detailed LaTeX mathematical equations using $$ ... $$.
+- Include at least 1 Markdown table displaying experimental results comparing baseline models.
+- Explicitly embed the following image hooks in the text:
+  1. Methodology section: `![Figure 1: Hybrid Transformer-Mamba MoE Architecture](figure:architecture)`
+  2. Experimental Results section: `![Figure 2: Performance and Throughput Comparison](figure:chart)`
 
-Use markdown formatting with proper section headers."""
+Make the output extremely detailed, formal, and high-fidelity (at least 1200 words)."""
 
     has_nvidia = nvidia_key or (NVIDIA_API_KEY and not NVIDIA_API_KEY.startswith("nvapi-xxx") and NVIDIA_API_KEY != "")
     if not has_nvidia:
         content = f"""# {req.title}
 
 **Abstract**
-
-This paper presents a comprehensive investigation into {req.title.lower()} within the domain of {req.domain}. We propose a novel framework leveraging NVIDIA Nemotron 3's hybrid Transformer-Mamba architecture to achieve state-of-the-art performance. Our experimental results demonstrate a 5x improvement in throughput and 40% reduction in computational overhead compared to baseline models. The findings suggest significant implications for real-world deployment of large language models in resource-constrained environments.
+This paper presents a comprehensive investigation into {req.title.lower()} within the domain of {req.domain}. We propose a novel framework leveraging NVIDIA Nemotron 3's hybrid Transformer-Mamba architecture to achieve state-of-the-art performance. By marrying the global context mapping of multi-head self-attention with the linear-time recurrence relation of selective State Space Models (SSMs), our proposed architecture overcomes quadratic scaling complexities. Our experimental results demonstrate a 5x improvement in throughput and 40% reduction in computational overhead compared to baseline transformer models. The findings suggest significant implications for real-world deployment of large language models in resource-constrained environments.
 
 **Keywords:** {", ".join(req.keywords) if req.keywords else "artificial intelligence, Nemotron, transformer, mixture-of-experts"}
 
 ---
 
-## 1. Introduction
+# I. INTRODUCTION
 
-The rapid advancement of large language models (LLMs) has created unprecedented opportunities in {req.domain}. However, significant challenges remain in balancing computational efficiency with model capability...
+The rapid advancement of large language models (LLMs) has created unprecedented opportunities in {req.domain}. However, significant challenges remain in balancing computational efficiency with model capability. Classic attention mechanisms suffer from quadratic computational and memory complexity with respect to the sequence length, making long-context processing financially and physically prohibitive. 
 
-## 2. Related Work
+To address these challenges, we introduce an agentic acceleration framework utilizing the latest NVIDIA Nemotron 3 engine. This framework leverages key innovations including selective state spaces and sparse expert routing, which we describe in detail in the following sections.
 
-Previous work by Vaswani et al. (2017) established the transformer architecture as the dominant paradigm. Recent developments including Mamba (Gu & Dao, 2023) have demonstrated the viability of state-space models as competitive alternatives...
+---
 
-## 3. Methodology
+# II. RELATED WORK
 
-Our proposed framework integrates three key innovations:
+Previous work by Vaswani et al. (2017) established the transformer architecture as the dominant paradigm. Recent developments including Mamba (Gu & Dao, 2023) have demonstrated the viability of state-space models as competitive alternatives. The Sparse Mixture-of-Experts (MoE) approach (Shazeer et al., 2017) has further shown that decoupling parameter count from compute-per-token is highly effective. 
 
-**3.1 Hybrid Architecture**
-We combine transformer attention mechanisms with Mamba's selective state-space models to balance global and local context modeling.
+Our work bridges these lines of research by constructing a unified hybrid block that executes attention and SSM layers in parallel, subsequently gated by a latent router.
 
-**3.2 Latent Mixture-of-Experts**
-Dynamic routing assigns tokens to specialized expert networks, reducing active parameters during inference by 60%.
+---
 
-**3.3 Multi-Token Prediction**
-Parallel prediction of multiple future tokens enables 5x inference speedup without accuracy degradation.
+# III. METHODOLOGY
 
-## 4. Experimental Results
+Our proposed framework integrates three key innovations: Hybrid Attention-SSM blocks, a Latent Router, and Multi-Token Prediction heads.
 
-| Model | Throughput (tok/s) | MMLU | HumanEval |
-|-------|-------------------|------|-----------|
-| GPT-4 Turbo | 45 | 86.4 | 87.0 |
-| Llama 3.1 70B | 78 | 83.6 | 80.5 |
-| **Nemotron 3 (Ours)** | **210** | **85.1** | **83.2** |
+## A. Hybrid Block Architecture
+We combine transformer attention mechanisms with Mamba's selective state-space models to balance global and local context modeling. The state transition equation of the selective SSM layer is defined as:
 
-## 5. Discussion
+$$h_t = A h_{t-1} + B x_t \qquad (1)$$
 
-The results validate our hypothesis that hybrid architectures can achieve competitive accuracy while delivering superior throughput...
+$$y_t = C h_t + D x_t \qquad (2)$$
 
-## 6. Conclusion
+where $A$, $B$, $C$, and $D$ are parameters parameterized dynamically by input tokens to enforce content-dependent memory routing.
 
-This work demonstrates the effectiveness of combining transformer and state-space model components within a Mixture-of-Experts framework. Future work will explore scaling to 400B+ parameter regimes.
+## B. Latent Mixture-of-Experts Router
+Dynamic routing assigns tokens to specialized expert networks, reducing active parameters during inference by 60%. The gating routing function $G(x)$ determines the activation coefficient for each expert $E_i$:
 
-## References
+$$G(x) = \text{Softmax}(\text{TopK}(x \cdot W_g + \epsilon, k)) \qquad (3)$$
+
+Here, the architecture of the hybrid transformer-mamba framework is detailed below:
+
+![Figure 1: Hybrid Transformer-Mamba MoE Architecture](figure:architecture)
+
+---
+
+# IV. EXPERIMENTAL RESULTS
+
+We evaluate our model against standard baselines across multiple benchmark tasks including MMLU, HumanEval, and token-generation throughput. The evaluation was conducted on an NVIDIA H100 GPU cluster.
+
+| Model | Throughput (tok/s) | MMLU | HumanEval | GPU VRAM (GB) |
+| :--- | :---: | :---: | :---: | :---: |
+| GPT-4 Turbo | 45 | 86.4 | 87.0 | N/A (API) |
+| Llama 3.1 70B | 78 | 83.6 | 80.5 | 140 |
+| **Nemotron 3 (Ours)** | **210** | **85.1** | **83.2** | **64** |
+
+As demonstrated in the comparison, our method achieves superior throughput speeds:
+
+![Figure 2: Performance and Throughput Comparison](figure:chart)
+
+---
+
+# V. DISCUSSION
+
+The results validate our hypothesis that hybrid architectures can achieve competitive accuracy while delivering superior throughput. The parallel layout of attention and SSM enables high memory efficiency, while the MoE layer limits active parameter computation. 
+
+---
+
+# VI. CONCLUSION
+
+This work demonstrates the effectiveness of combining transformer and state-space model components within a Mixture-of-Experts framework. Future work will explore scaling to 400B+ parameter regimes and testing on real-time edge devices.
+
+---
+
+# VII. REFERENCES
 
 1. Vaswani, A., et al. (2017). *Attention is all you need*. NeurIPS.
 2. Gu, A., & Dao, T. (2023). *Mamba: Linear-time sequence modeling with selective state spaces*. arXiv:2312.00752.
 3. Shazeer, N., et al. (2017). *Outrageously large neural networks: The sparsely-gated mixture-of-experts layer*. ICLR.
 4. Brown, T., et al. (2020). *Language models are few-shot learners*. NeurIPS.
-5. Touvron, H., et al. (2023). *Llama 2: Open foundation and fine-tuned chat models*. arXiv:2307.09288."""
+5. Touvron, H., et al. (2023). *Llama 2: Open foundation and fine-tuned chat models*. arXiv:2307.09288.
+"""
         return {"title": req.title, "content": content, "domain": req.domain, "mock": True}
 
     try:
         content = await generate_full(prompt, nvidia_key=nvidia_key, openrouter_key=openrouter_key)
         return {"title": req.title, "content": content, "domain": req.domain, "mock": False}
     except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))     }
+
+    try:
+        content = await generate_full(prompt, nvidia_key=nvidia_key, openrouter_key=openrouter_key)
+        lines = content.strip().split("\n")
+        title = lines[0].lstrip("#").strip() if lines else req.topic
+        return {"title": title, "content": content, "word_count": len(content.split()), "topic": req.topic, "mock": False}
+    except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
 
 @app.get("/projects/{user_id}")
 async def get_projects(user_id: str):
