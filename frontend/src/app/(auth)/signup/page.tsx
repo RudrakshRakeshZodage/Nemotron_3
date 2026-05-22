@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
@@ -17,6 +17,11 @@ export default function SignupPage() {
   const [success, setSuccess] = useState(false)
   const router = useRouter()
   const supabase = createClient()
+
+  // Bypass: redirect directly to dashboard
+  useEffect(() => {
+    router.replace('/dashboard')
+  }, [router])
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault()

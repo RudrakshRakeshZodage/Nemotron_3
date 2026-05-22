@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Settings, User, Key, Moon, Sun, Bell, Shield, Save, Check, Eye, EyeOff, Copy } from 'lucide-react'
 import { copyToClipboard } from '@/lib/utils'
@@ -9,17 +9,41 @@ export default function SettingsPage() {
   const [name, setName] = useState('Demo User')
   const [email, setEmail] = useState('demo@nemocore.ai')
   const [theme, setTheme] = useState<'dark' | 'light'>('dark')
-  const [apiKey, setApiKey] = useState('nvapi-xxxxxxxxxxxxxxxxxx')
+  const [apiKey, setApiKey] = useState('')
   const [showKey, setShowKey] = useState(false)
   const [saved, setSaved] = useState(false)
   const [copiedKey, setCopiedKey] = useState(false)
-  const [openRouterKey, setOpenRouterKey] = useState('sk-or-xxxxxxxxxxxxxxxxxx')
+  const [openRouterKey, setOpenRouterKey] = useState('')
   const [showOpenRouterKey, setShowOpenRouterKey] = useState(false)
   const [copiedOpenRouterKey, setCopiedOpenRouterKey] = useState(false)
   const [notifications, setNotifications] = useState({ email: true, usage: true, updates: false })
 
+  // Load API keys from localStorage on mount
+  useEffect(() => {
+    const nvidiaKey = localStorage.getItem('nemocore_nvidia_key') || ''
+    const openrouterKey = localStorage.getItem('nemocore_openrouter_key') || ''
+    if (nvidiaKey) setApiKey(nvidiaKey)
+    if (openrouterKey) setOpenRouterKey(openrouterKey)
+  }, [])
+
   const handleSave = () => {
-    setSaved(true); setTimeout(() => setSaved(false), 2500)
+    // Persist API keys to localStorage
+    if (apiKey.trim()) {
+      localStorage.setItem('nemocore_nvidia_key', apiKey.trim())
+    } else {
+      localStorage.removeItem('nemocore_nvidia_key')
+    }
+    if (openRouterKey.trim()) {
+      localStorage.setItem('nemocore_openrouter_key', openRouterKey.trim())
+    } else {
+      localStorage.removeItem('nemocore_openrouter_key')
+    }
+    // Clear demo mode flag if user sets real keys
+    if (apiKey.trim() || openRouterKey.trim()) {
+      localStorage.removeItem('nemocore_demo_mode')
+    }
+    setSaved(true)
+    setTimeout(() => setSaved(false), 2500)
   }
 
   const handleCopyKey = () => {
@@ -85,7 +109,7 @@ export default function SettingsPage() {
             </p>
             <label className="form-label">NVIDIA API Key</label>
             <div style={{ position: 'relative', marginBottom: 12 }}>
-              <input className="form-input" type={showKey ? 'text' : 'password'} value={apiKey} onChange={e => setApiKey(e.target.value)} style={{ paddingRight: 80 }} />
+              <input className="form-input" type={showKey ? 'text' : 'password'} value={apiKey} onChange={e => setApiKey(e.target.value)} placeholder="nvapi-xxxxxxxxxxxxxxxxxxxx" style={{ paddingRight: 80 }} />
               <div style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', display: 'flex', gap: 4 }}>
                 <button onClick={() => setShowKey(!showKey)} className="btn-ghost" style={{ padding: '4px 6px' }}>
                   {showKey ? <EyeOff size={13} /> : <Eye size={13} />}
@@ -103,7 +127,7 @@ export default function SettingsPage() {
             </p>
             <label className="form-label">OpenRouter API Key</label>
             <div style={{ position: 'relative', marginBottom: 12 }}>
-              <input className="form-input" type={showOpenRouterKey ? 'text' : 'password'} value={openRouterKey} onChange={e => setOpenRouterKey(e.target.value)} style={{ paddingRight: 80 }} />
+              <input className="form-input" type={showOpenRouterKey ? 'text' : 'password'} value={openRouterKey} onChange={e => setOpenRouterKey(e.target.value)} placeholder="sk-or-xxxxxxxxxxxxxxxxxxxx" style={{ paddingRight: 80 }} />
               <div style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', display: 'flex', gap: 4 }}>
                 <button onClick={() => setShowOpenRouterKey(!showOpenRouterKey)} className="btn-ghost" style={{ padding: '4px 6px' }}>
                   {showOpenRouterKey ? <EyeOff size={13} /> : <Eye size={13} />}

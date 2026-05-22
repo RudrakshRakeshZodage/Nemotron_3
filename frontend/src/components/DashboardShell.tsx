@@ -1,11 +1,23 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Menu } from 'lucide-react'
 import Sidebar from './Sidebar'
+import ApiKeyModal from './ApiKeyModal'
 
 export default function DashboardShell({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [showApiModal, setShowApiModal] = useState(false)
+
+  useEffect(() => {
+    // Show modal if neither key has been set and demo mode not previously selected
+    const hasNvidia = !!localStorage.getItem('nemocore_nvidia_key')
+    const hasOpenrouter = !!localStorage.getItem('nemocore_openrouter_key')
+    const isDemoMode = !!localStorage.getItem('nemocore_demo_mode')
+    if (!hasNvidia && !hasOpenrouter && !isDemoMode) {
+      setShowApiModal(true)
+    }
+  }, [])
 
   return (
     <div className="dashboard-layout">
@@ -26,6 +38,9 @@ export default function DashboardShell({ children }: { children: React.ReactNode
         </div>
         {children}
       </main>
+
+      {/* API Key modal — shown only when no keys are configured */}
+      {showApiModal && <ApiKeyModal onClose={() => setShowApiModal(false)} />}
     </div>
   )
 }

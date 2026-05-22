@@ -38,8 +38,7 @@ function Navbar() {
           <a key={item} href={`#${item.toLowerCase().replace(/ /g, '-')}`} className="btn-ghost" style={{ fontSize: '0.85rem' }}>{item}</a>
         ))}
         <ThemeToggle />
-        <Link href="/login" className="btn-ghost" style={{ fontSize: '0.85rem' }}>Log in</Link>
-        <Link href="/signup" className="btn-primary" style={{ padding: '9px 20px', fontSize: '0.85rem' }}>
+        <Link href="/dashboard" className="btn-primary" style={{ padding: '9px 20px', fontSize: '0.85rem' }}>
           Get Started <ArrowRight size={14} />
         </Link>
       </div>
@@ -96,7 +95,7 @@ function HeroSection() {
           initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.35 }}
           style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap' }}
         >
-          <Link href="/signup" className="btn-primary" style={{ fontSize: '1rem', padding: '14px 32px' }}>
+          <Link href="/dashboard" className="btn-primary" style={{ fontSize: '1rem', padding: '14px 32px' }}>
             Get Started Free <ArrowRight size={16} />
           </Link>
           <Link href="/dashboard/chat" className="btn-secondary" style={{ fontSize: '1rem', padding: '14px 32px' }}>
@@ -456,7 +455,7 @@ function PricingSection() {
                   </div>
                 ))}
               </div>
-              <Link href="/signup" className={plan.highlight ? 'btn-primary' : 'btn-secondary'} style={{ width: '100%', justifyContent: 'center', boxSizing: 'border-box' }}>
+              <Link href="/dashboard" className={plan.highlight ? 'btn-primary' : 'btn-secondary'} style={{ width: '100%', justifyContent: 'center', boxSizing: 'border-box' }}>
                 {plan.cta}
               </Link>
             </motion.div>

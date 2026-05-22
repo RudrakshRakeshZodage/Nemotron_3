@@ -63,12 +63,16 @@ class SaveProjectRequest(BaseModel):
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
-async def stream_chat(messages: list, model: str, temperature: float, max_tokens: int):
+async def stream_chat(messages: list, model: str, temperature: float, max_tokens: int, nvidia_key: str = "", openrouter_key: str = ""):
     """Stream from appropriate API based on model prefix."""
-    if MOCK_MODE:
+    has_nvidia = nvidia_key or (NVIDIA_API_KEY and not NVIDIA_API_KEY.startswith("nvapi-xxx") and NVIDIA_API_KEY != "")
+    has_openrouter = openrouter_key or (OPENROUTER_API_KEY and not OPENROUTER_API_KEY.startswith("sk-or-xxx") and OPENROUTER_API_KEY != "")
+    is_mock = (model.startswith("nvidia/") and not has_nvidia) or (model.startswith("openrouter/") and not has_openrouter)
+
+    if is_mock:
         mock_response = (
             "I'm **NemoCore AI**, powered by NVIDIA Nemotron 3. "
-            "This is a simulated response — add your API key to `.env` for live responses.\n\n"
+            "This is a simulated response — add your API key to settings for live responses.\n\n"
             "```python\n# Example code output\ndef hello_nemotron():\n    return 'NVIDIA Nemotron 3 is live!'\n```\n\n"
             "Nemotron 3 features:\n- 🚀 Multi-token prediction\n- 🧠 Hybrid Transformer + Mamba architecture\n- ⚡ 5x throughput vs standard models\n- 🔬 Latent Mixture-of-Experts"
         )
@@ -80,14 +84,14 @@ async def stream_chat(messages: list, model: str, temperature: float, max_tokens
 
     # Determine API provider based on model prefix
     if model.startswith("nvidia/"):
-        api_key = NVIDIA_API_KEY
+        api_key = nvidia_key or NVIDIA_API_KEY
         base_url = NVIDIA_BASE_URL
         headers = {
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json",
         }
     elif model.startswith("openrouter/"):
-        api_key = OPENROUTER_API_KEY
+        api_key = openrouter_key or OPENROUTER_API_KEY
         base_url = OPENROUTER_BASE_URL
         headers = {
             "Authorization": f"Bearer {api_key}",
@@ -123,21 +127,25 @@ async def stream_chat(messages: list, model: str, temperature: float, max_tokens
             raise HTTPException(status_code=500, detail=f"Request failed: {str(e)}")
 
 
-async def generate_full(prompt: str, model: str = "nvidia/llama-3.1-nemotron-70b-instruct") -> str:
+async def generate_full(prompt: str, model: str = "nvidia/llama-3.1-nemotron-70b-instruct", nvidia_key: str = "", openrouter_key: str = "") -> str:
     """Non-streaming full response (for structured generation)."""
-    if MOCK_MODE:
+    has_nvidia = nvidia_key or (NVIDIA_API_KEY and not NVIDIA_API_KEY.startswith("nvapi-xxx") and NVIDIA_API_KEY != "")
+    has_openrouter = openrouter_key or (OPENROUTER_API_KEY and not OPENROUTER_API_KEY.startswith("sk-or-xxx") and OPENROUTER_API_KEY != "")
+    is_mock = (model.startswith("nvidia/") and not has_nvidia) or (model.startswith("openrouter/") and not has_openrouter)
+
+    if is_mock:
         return f"[MOCK] Generated response for: {prompt[:80]}..."
 
     # Determine API provider based on model prefix
     if model.startswith("nvidia/"):
-        api_key = NVIDIA_API_KEY
+        api_key = nvidia_key or NVIDIA_API_KEY
         base_url = NVIDIA_BASE_URL
         headers = {
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json",
         }
     elif model.startswith("openrouter/"):
-        api_key = OPENROUTER_API_KEY
+        api_key = openrouter_key or OPENROUTER_API_KEY
         base_url = OPENROUTER_BASE_URL
         headers = {
             "Authorization": f"Bearer {api_key}",
@@ -174,16 +182,20 @@ async def health():
     return {"status": "ok", "nvidia_connected": not MOCK_MODE}
 
 @app.post("/chat")
-async def chat(req: ChatRequest):
+async def chat(req: ChatRequest, request: Request):
+    nvidia_key = request.headers.get("x-nvidia-api-key", "")
+    openrouter_key = request.headers.get("x-openrouter-api-key", "")
     messages = [{"role": m.role, "content": m.content} for m in req.messages]
     return StreamingResponse(
-        stream_chat(messages, req.model, req.temperature, req.max_tokens),
+        stream_chat(messages, req.model, req.temperature, req.max_tokens, nvidia_key, openrouter_key),
         media_type="text/event-stream",
         headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
     )
 
 @app.post("/agent")
-async def agent(req: AgentRequest):
+async def agent(req: AgentRequest, request: Request):
+    nvidia_key = request.headers.get("x-nvidia-api-key", "")
+    openrouter_key = request.headers.get("x-openrouter-api-key", "")
     prompt = f"""You are an expert AI agent planner. Break the following task into exactly 4 concrete steps.
 Respond with a valid JSON array of objects with keys: step (int), title (string), description (string), output (string).
 
@@ -191,7 +203,11 @@ Task: {req.task}
 
 Return ONLY the JSON array, no markdown, no explanation."""
 
-    if MOCK_MODE:
+    has_nvidia = nvidia_key or (NVIDIA_API_KEY and not NVIDIA_API_KEY.startswith("nvapi-xxx") and NVIDIA_API_KEY != "")
+    has_openrouter = openrouter_key or (OPENROUTER_API_KEY and not OPENROUTER_API_KEY.startswith("sk-or-xxx") and OPENROUTER_API_KEY != "")
+    is_mock = (req.model.startswith("nvidia/") and not has_nvidia) or (req.model.startswith("openrouter/") and not has_openrouter)
+
+    if is_mock:
         steps = [
             {"step": 1, "title": "Research & Analysis", "description": f"Gather requirements and analyze the task: {req.task}", "output": "Comprehensive understanding of the task scope, constraints, and success criteria. Identified 3 key components to address."},
             {"step": 2, "title": "Planning & Architecture", "description": "Design the solution architecture and create a detailed implementation plan.", "output": "Step-by-step implementation plan with technology stack, file structure, and component breakdown."},
@@ -201,7 +217,7 @@ Return ONLY the JSON array, no markdown, no explanation."""
         return {"steps": steps, "task": req.task, "mock": True}
 
     try:
-        raw = await generate_full(prompt, req.model)
+        raw = await generate_full(prompt, req.model, nvidia_key, openrouter_key)
         # Clean JSON from potential markdown fences
         raw = raw.strip().lstrip("```json").lstrip("```").rstrip("```").strip()
         steps = json.loads(raw)
@@ -210,7 +226,9 @@ Return ONLY the JSON array, no markdown, no explanation."""
         raise HTTPException(status_code=500, detail=f"Agent error: {str(e)}")
 
 @app.post("/generate-blog")
-async def generate_blog(req: BlogRequest):
+async def generate_blog(req: BlogRequest, request: Request):
+    nvidia_key = request.headers.get("x-nvidia-api-key", "")
+    openrouter_key = request.headers.get("x-openrouter-api-key", "")
     prompt = f"""Write a comprehensive, engaging {req.tone} blog post about "{req.topic}".
 
 Structure:
@@ -222,7 +240,8 @@ Structure:
 
 Format with proper markdown. Length: {req.length} (medium = ~800 words)."""
 
-    if MOCK_MODE:
+    has_nvidia = nvidia_key or (NVIDIA_API_KEY and not NVIDIA_API_KEY.startswith("nvapi-xxx") and NVIDIA_API_KEY != "")
+    if not has_nvidia:
         content = f"""# {req.topic}: The Future of AI is Here
 
 ## Introduction
@@ -266,7 +285,7 @@ The future of AI is agentic, efficient, and accessible. **Start building with Ne
         }
 
     try:
-        content = await generate_full(prompt)
+        content = await generate_full(prompt, nvidia_key=nvidia_key, openrouter_key=openrouter_key)
         lines = content.strip().split("\n")
         title = lines[0].lstrip("#").strip() if lines else req.topic
         return {"title": title, "content": content, "word_count": len(content.split()), "topic": req.topic, "mock": False}
@@ -274,7 +293,9 @@ The future of AI is agentic, efficient, and accessible. **Start building with Ne
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/generate-paper")
-async def generate_paper(req: PaperRequest):
+async def generate_paper(req: PaperRequest, request: Request):
+    nvidia_key = request.headers.get("x-nvidia-api-key", "")
+    openrouter_key = request.headers.get("x-openrouter-api-key", "")
     prompt = f"""Write a formal academic research paper titled "{req.title}" in the domain of {req.domain}.
 Keywords: {", ".join(req.keywords) if req.keywords else "AI, machine learning, neural networks"}
 
@@ -290,7 +311,8 @@ Include these sections in proper academic format:
 
 Use markdown formatting with proper section headers."""
 
-    if MOCK_MODE:
+    has_nvidia = nvidia_key or (NVIDIA_API_KEY and not NVIDIA_API_KEY.startswith("nvapi-xxx") and NVIDIA_API_KEY != "")
+    if not has_nvidia:
         content = f"""# {req.title}
 
 **Abstract**
@@ -348,7 +370,7 @@ This work demonstrates the effectiveness of combining transformer and state-spac
         return {"title": req.title, "content": content, "domain": req.domain, "mock": True}
 
     try:
-        content = await generate_full(prompt)
+        content = await generate_full(prompt, nvidia_key=nvidia_key, openrouter_key=openrouter_key)
         return {"title": req.title, "content": content, "domain": req.domain, "mock": False}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
