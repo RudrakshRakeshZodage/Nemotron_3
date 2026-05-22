@@ -14,9 +14,19 @@ load_dotenv()
 app = FastAPI(title="NemoCore AI API", version="1.0.0")
 
 
+# Build allowed origins list from environment
+_frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
+_allowed_origins = [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    _frontend_url,
+]
+# Also allow all vercel.app subdomains (covers preview + production deployments)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[os.getenv("FRONTEND_URL", "http://localhost:3000"), "*"],
+    allow_origin_regex=r"https://.*\.vercel\.app",
+    allow_origins=_allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -175,11 +185,12 @@ async def generate_full(prompt: str, model: str = "nvidia/llama-3.1-nemotron-70b
 
 @app.get("/")
 async def root():
-    return {"message": "NemoCore AI API", "status": "running", "mock_mode": MOCK_MODE}
+    env = os.getenv("ENVIRONMENT", "development")
+    return {"message": "NemoCore AI API", "status": "running", "environment": env, "mock_mode": MOCK_MODE}
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "nvidia_connected": not MOCK_MODE}
+    return {"status": "ok", "nvidia_connected": bool(NVIDIA_API_KEY and not NVIDIA_API_KEY.startswith("nvapi-xxx")), "openrouter_connected": bool(OPENROUTER_API_KEY and not OPENROUTER_API_KEY.startswith("sk-or-xxx"))}
 
 @app.post("/chat")
 async def chat(req: ChatRequest, request: Request):
