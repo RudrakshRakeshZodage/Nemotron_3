@@ -61,7 +61,7 @@ export default function Sidebar({ open, onClose }: { open?: boolean; onClose?: (
           </Link>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <ThemeToggle />
-            <button className="btn-ghost" onClick={onClose} style={{ padding: 6, display: 'flex' }}>
+            <button className="btn-ghost md:hidden" onClick={onClose} style={{ padding: 6, display: 'flex' }}>
               <X size={16} />
             </button>
           </div>

@@ -12,13 +12,7 @@ import ThemeToggle from '@/components/ThemeToggle'
 // ── Navbar ──────────────────────────────────────────────────────────────────
 function Navbar() {
   return (
-    <nav style={{
-      position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
-      background: 'rgba(3,7,18,0.8)', backdropFilter: 'blur(20px)',
-      borderBottom: '1px solid rgba(255,255,255,0.06)',
-      padding: '0 40px', height: 64,
-      display: 'flex', alignItems: 'center', justifyContent: 'space-between'
-    }}>
+    <nav className="landing-navbar">
       <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
         <div style={{
           width: 34, height: 34, borderRadius: 9,
@@ -33,10 +27,12 @@ function Navbar() {
         </span>
       </Link>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-        {['Features', 'How It Works', 'Use Cases', 'Pricing'].map(item => (
-          <a key={item} href={`#${item.toLowerCase().replace(/ /g, '-')}`} className="btn-ghost" style={{ fontSize: '0.85rem' }}>{item}</a>
-        ))}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div className="landing-nav-links" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          {['Features', 'How It Works', 'Use Cases', 'Pricing'].map(item => (
+            <a key={item} href={`#${item.toLowerCase().replace(/ /g, '-')}`} className="btn-ghost" style={{ fontSize: '0.85rem' }}>{item}</a>
+          ))}
+        </div>
         <ThemeToggle />
         <Link href="/dashboard" className="btn-primary" style={{ padding: '9px 20px', fontSize: '0.85rem' }}>
           Get Started <ArrowRight size={14} />
@@ -168,7 +164,7 @@ function FeaturesSection() {
           </p>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 20 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
           {features.map((f, i) => {
             const Icon = f.icon
             return (
@@ -313,7 +309,7 @@ function NemotronSection() {
   return (
     <section style={{ padding: '120px 24px' }}>
       <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 60, alignItems: 'center' }}>
+        <div className="grid-2col-responsive">
           <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
             <span className="badge" style={{ marginBottom: 20, display: 'inline-flex' }}>Architecture</span>
             <h2 style={{ fontSize: 'clamp(1.8rem, 3.5vw, 2.8rem)', fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 20 }}>
@@ -394,7 +390,7 @@ function TestimonialsSection() {
             Loved by <span className="gradient-text">AI builders</span>
           </h2>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 20 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
           {testimonials.map((t, i) => (
             <motion.div key={t.name} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="glass-card" style={{ padding: 28 }}>
               <div style={{ display: 'flex', gap: 2, marginBottom: 16 }}>
@@ -471,7 +467,7 @@ function Footer() {
   return (
     <footer style={{ borderTop: '1px solid var(--border-color)', padding: '60px 40px 40px', background: 'var(--bg-secondary)' }}>
       <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: 40, marginBottom: 48 }}>
+        <div className="footer-grid">
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
               <div style={{ width: 32, height: 32, borderRadius: 8, background: 'linear-gradient(135deg, #76b900, #a3e635)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

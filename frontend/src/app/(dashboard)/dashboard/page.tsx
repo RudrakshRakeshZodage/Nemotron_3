@@ -55,14 +55,13 @@ const Sparkline = ({ color }: { color: string }) => (
 
 export default function DashboardPage() {
   return (
-    <div style={{ padding: '32px 40px', maxWidth: 1400, margin: '0 auto', position: 'relative' }}>
+    <div className="dashboard-page-container" style={{ maxWidth: 1400 }}>
       <div className="mesh-bg" />
       
-      {/* Header Section */}
       <motion.div 
         initial={{ opacity: 0, y: -20 }} 
         animate={{ opacity: 1, y: 0 }} 
-        style={{ marginBottom: 44, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}
+        className="dashboard-header"
       >
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
@@ -128,7 +127,7 @@ export default function DashboardPage() {
         })}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: 32, marginBottom: 48 }}>
+      <div className="grid-dashboard-main">
         {/* Quick Access Tiles */}
         <div className="glass-card" style={{ padding: 32, border: '1px solid rgba(255,255,255,0.05)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 28 }}>
@@ -136,7 +135,7 @@ export default function DashboardPage() {
               <Zap size={20} color="var(--nemo-green)" /> Neural Command
             </h2>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16 }}>
+          <div className="grid-quick-actions">
             {quickActions.map((action, i) => {
               const Icon = action.icon
               return (
@@ -264,7 +263,7 @@ export default function DashboardPage() {
         className="glass-premium"
         style={{ padding: '32px 40px', background: 'linear-gradient(135deg, rgba(118,185,0,0.1) 0%, rgba(13,17,23,0.9) 50%, rgba(0,212,255,0.05) 100%)', border: '1px solid rgba(118,185,0,0.1)' }}
       >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 32 }}>
+        <div className="infra-metrics-container">
           <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
             <div style={{ position: 'relative' }}>
               <div style={{ width: 64, height: 64, borderRadius: 16, background: 'rgba(118,185,0,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(118,185,0,0.2)' }}>
@@ -283,7 +282,7 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: 48 }}>
+          <div className="infra-metrics-row">
             {[
               { label: 'Compute Unit', value: 'DGX-H100', detail: '8x Clusters' },
               { label: 'Current Load', value: '42.8%', detail: 'Power Saving' },
