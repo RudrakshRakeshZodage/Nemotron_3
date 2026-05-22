@@ -65,7 +65,7 @@ export default function SettingsPage() {
   )
 
   return (
-    <div style={{ padding: '40px', minHeight: '100vh', maxWidth: 720 }}>
+    <div className="dashboard-page-container" style={{ maxWidth: 720 }}>
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} style={{ marginBottom: 32 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
           <div style={{ width: 40, height: 40, borderRadius: 11, background: 'rgba(118,185,0,0.15)', border: '1px solid rgba(118,185,0,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

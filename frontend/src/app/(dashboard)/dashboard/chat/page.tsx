@@ -138,9 +138,9 @@ export default function ChatPage() {
   const selectedModel = models.find(m => m.id === model)!
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: 'var(--bg-primary)' }}>
+    <div className="chat-page-container">
       {/* Header */}
-      <div style={{ padding: '16px 28px', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--bg-secondary)', flexShrink: 0 }}>
+      <div className="chat-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(118,185,0,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Bot size={18} color="var(--nemo-green)" />
@@ -184,7 +184,7 @@ export default function ChatPage() {
       </div>
 
       {/* Messages */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '28px', display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <div className="chat-messages-container">
         {messages.length === 0 && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', gap: 24 }}>
             <div style={{ width: 72, height: 72, borderRadius: 20, background: 'linear-gradient(135deg, rgba(118,185,0,0.2), rgba(0,212,255,0.1))', border: '2px solid rgba(118,185,0,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 40px rgba(118,185,0,0.15)' }}>
@@ -194,7 +194,7 @@ export default function ChatPage() {
               <h2 style={{ fontWeight: 700, fontSize: '1.3rem', marginBottom: 6 }}>How can I help you today?</h2>
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>Powered by NVIDIA Nemotron 3 · {selectedModel.label}</p>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, maxWidth: 560, width: '100%' }}>
+            <div className="chat-suggestions-grid">
               {suggestions.map(s => (
                 <motion.button key={s} whileHover={{ scale: 1.02 }} onClick={() => sendMessage(s)}
                   style={{ padding: '12px 16px', background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 10, color: 'var(--text-secondary)', fontSize: '0.8rem', cursor: 'pointer', textAlign: 'left', transition: 'all 0.15s', lineHeight: 1.4 }}>
@@ -251,7 +251,7 @@ export default function ChatPage() {
       </div>
 
       {/* Input */}
-      <div style={{ padding: '16px 28px 24px', borderTop: '1px solid var(--border-color)', background: 'var(--bg-secondary)', flexShrink: 0 }}>
+      <div className="chat-input-wrapper">
         <div style={{ maxWidth: 860, margin: '0 auto', position: 'relative' }}>
           <div style={{ display: 'flex', alignItems: 'flex-end', gap: 10, background: 'var(--bg-input)', border: `1px solid ${loading ? 'var(--border-accent)' : 'var(--border-color)'}`, borderRadius: 14, padding: '10px 14px', transition: 'border-color 0.2s', boxShadow: loading ? 'var(--shadow-glow)' : 'none' }}>
             <textarea

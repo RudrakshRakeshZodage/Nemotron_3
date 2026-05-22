@@ -82,7 +82,7 @@ export default function PaperPage() {
   }
 
   return (
-    <div style={{ padding: '40px', minHeight: '100vh', maxWidth: 1100 }}>
+    <div className="dashboard-page-container" style={{ maxWidth: 1100 }}>
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} style={{ marginBottom: 32 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
           <div style={{ width: 40, height: 40, borderRadius: 11, background: 'rgba(236,72,153,0.15)', border: '1px solid rgba(236,72,153,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -95,7 +95,7 @@ export default function PaperPage() {
         </div>
       </motion.div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: result ? '360px 1fr' : '1fr', gap: 24, transition: 'all 0.5s' }}>
+      <div className={result ? "grid-paper-layout-result" : ""} style={{ display: 'grid', gridTemplateColumns: result ? undefined : '1fr', gap: 24, transition: 'all 0.5s' }}>
         <motion.div layout className="glass-card" style={{ padding: 28, alignSelf: 'start' }}>
           <div style={{ marginBottom: 20 }}>
             <label className="form-label">Paper Title</label>
@@ -139,13 +139,13 @@ export default function PaperPage() {
         <AnimatePresence>
           {result && (
             <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }} className="glass-card" style={{ padding: 32 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24, gap: 12 }}>
+              <div className="generator-output-header">
                 <div>
                   <div style={{ fontSize: '0.72rem', color: '#ec4899', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Research Paper</div>
                   <h2 style={{ fontWeight: 800, fontSize: '1.1rem', letterSpacing: '-0.02em', lineHeight: 1.4 }}>{result.title}</h2>
                   <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{domain} · {keywords.length} keywords</span>
                 </div>
-                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <div className="actions-group">
                   {/* View Mode Toggle */}
                   <div style={{ display: 'flex', background: 'var(--bg-input)', borderRadius: 8, padding: 3, border: '1px solid var(--border-color)', marginRight: 4 }}>
                     <button onClick={() => setViewMode('ieee')} style={{ fontSize: '0.72rem', padding: '4px 10px', borderRadius: 6, border: 'none', background: viewMode === 'ieee' ? 'rgba(236,72,153,0.15)' : 'transparent', color: viewMode === 'ieee' ? '#ec4899' : 'var(--text-secondary)', cursor: 'pointer', fontWeight: 600, transition: 'all 0.2s' }}>IEEE Style</button>
@@ -227,16 +227,6 @@ export default function PaperPage() {
                       }
                     `}</style>
                     <div style={{
-                      background: '#ffffff',
-                      color: '#111827',
-                      padding: '48px 56px',
-                      fontFamily: '"Times New Roman", Times, Georgia, serif',
-                      boxShadow: '0 10px 30px rgba(0,0,0,0.25)',
-                      borderRadius: '4px',
-                      border: '1px solid #e5e7eb',
-                      lineHeight: 1.5,
-                      fontSize: '13px',
-                      textAlign: 'justify' as const,
                       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                       // @ts-ignore
                       '--text-primary': '#111827',
@@ -244,7 +234,7 @@ export default function PaperPage() {
                       '--text-muted': '#4b5563',
                       '--border-color': '#d1d5db',
                       '--bg-input': '#ffffff'
-                    }} className="ieee-container">
+                    }} className="ieee-container ieee-paper-container">
                       {/* IEEE Header */}
                       <div style={{ textAlign: 'center', marginBottom: '24px' }}>
                         <div style={{ fontSize: '20px', fontWeight: 'bold', textTransform: 'uppercase', marginBottom: '12px', color: '#000000' }}>
@@ -268,11 +258,7 @@ export default function PaperPage() {
                       </div>
 
                       {/* Two Column Body */}
-                      <div style={{
-                        columnCount: 2,
-                        columnGap: '32px',
-                        columnRule: '1px solid #e5e7eb',
-                      }}>
+                      <div className="ieee-paper-body-columns">
                         <MarkdownRenderer content={parsePaperContent(result.content).body} />
                       </div>
                     </div>

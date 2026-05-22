@@ -90,7 +90,7 @@ export default function AgentPage() {
   }
 
   return (
-    <div style={{ padding: '40px', minHeight: '100vh' }}>
+    <div className="dashboard-page-container">
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} style={{ marginBottom: 36 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
           <div style={{ width: 40, height: 40, borderRadius: 11, background: 'rgba(0,212,255,0.15)', border: '1px solid rgba(0,212,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -109,7 +109,7 @@ export default function AgentPage() {
         <label className="form-label" style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: 12 }}>
           Describe your task
         </label>
-        <div style={{ display: 'flex', gap: 12 }}>
+        <div className="agent-input-container">
           <textarea
             value={task}
             onChange={e => setTask(e.target.value)}
@@ -175,7 +175,7 @@ export default function AgentPage() {
                     {/* Header */}
                     <button
                       onClick={() => setExpanded(prev => isOpen ? prev.filter(x => x !== i) : [...prev, i])}
-                      style={{ width: '100%', padding: '18px 20px', display: 'flex', alignItems: 'center', gap: 14, background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' }}
+                      className="agent-step-header"
                     >
                       <div style={{ width: 40, height: 40, borderRadius: 11, background: `${color}15`, border: `2px solid ${color}40`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                         <Icon size={18} color={color} />
@@ -212,7 +212,7 @@ export default function AgentPage() {
 
             {done && (
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-                style={{ padding: '20px 24px', background: 'rgba(118,185,0,0.08)', border: '1px solid rgba(118,185,0,0.25)', borderRadius: 12, display: 'flex', alignItems: 'center', gap: 12 }}>
+                className="agent-completed-container">
                  <CheckCircle size={22} color="var(--nemo-green)" />
                 <div>
                   <div style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--nemo-green)' }}>Task completed!</div>

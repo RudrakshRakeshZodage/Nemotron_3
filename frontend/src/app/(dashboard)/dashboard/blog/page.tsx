@@ -82,7 +82,7 @@ export default function BlogPage() {
   }
 
   return (
-    <div style={{ padding: '40px', minHeight: '100vh', maxWidth: 1100 }}>
+    <div className="dashboard-page-container" style={{ maxWidth: 1100 }}>
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} style={{ marginBottom: 32 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
           <div style={{ width: 40, height: 40, borderRadius: 11, background: 'rgba(124,58,237,0.15)', border: '1px solid rgba(124,58,237,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -95,7 +95,7 @@ export default function BlogPage() {
         </div>
       </motion.div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: result ? '380px 1fr' : '1fr', gap: 24, transition: 'all 0.5s' }}>
+      <div className={result ? "grid-blog-layout-result" : ""} style={{ display: 'grid', gridTemplateColumns: result ? undefined : '1fr', gap: 24, transition: 'all 0.5s' }}>
         {/* Controls */}
         <motion.div layout className="glass-card" style={{ padding: 28, alignSelf: 'start' }}>
           <div style={{ marginBottom: 20 }}>
@@ -151,13 +151,13 @@ export default function BlogPage() {
           {result && (
             <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }} className="glass-card" style={{ padding: 32 }}>
               {/* Actions */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24, gap: 12 }}>
+              <div className="generator-output-header">
                 <div>
                   <div style={{ fontSize: '0.72rem', color: '#7c3aed', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Generated Blog</div>
                   <h2 style={{ fontWeight: 800, fontSize: '1.2rem', letterSpacing: '-0.02em', lineHeight: 1.3 }}>{result.title}</h2>
                   <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>~{result.word_count} words · {tone} · {length}</span>
                 </div>
-                <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
+                <div className="actions-group">
                   <button onClick={handleSave} className="btn-ghost" style={{ fontSize: '0.78rem', border: '1px solid var(--border-color)', borderRadius: 8, color: saved ? 'var(--nemo-green)' : 'inherit' }} disabled={saving}>
                     {saved ? <><Check size={13} /> Saved</> : <><Save size={13} /> Save</>}
                   </button>

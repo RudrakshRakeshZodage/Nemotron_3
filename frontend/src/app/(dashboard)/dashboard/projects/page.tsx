@@ -35,9 +35,9 @@ export default function ProjectsPage() {
   }
 
   return (
-    <div style={{ padding: '40px', minHeight: '100vh', maxWidth: 1100 }}>
+    <div className="dashboard-page-container" style={{ maxWidth: 1100 }}>
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} style={{ marginBottom: 28 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', marginBottom: 8 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <div style={{ width: 40, height: 40, borderRadius: 11, background: 'rgba(118,185,0,0.15)', border: '1px solid rgba(118,185,0,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <FolderOpen size={20} color="var(--nemo-green)" />
@@ -75,7 +75,7 @@ export default function ProjectsPage() {
           <p>No projects found</p>
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
           {filtered.map((project, i) => {
             const cfg = typeConfig[project.type]
             const Icon = cfg.icon
