@@ -286,7 +286,7 @@ client = openai.OpenAI(
 
 response = client.chat.completions.create(
     model="nvidia/llama-3.1-nemotron-70b-instruct",
-    messages=[{"role": "user", "content": "Hello, Nemotron!"}],
+    messages=[{{"role": "user", "content": "Hello, Nemotron!"}}],
     stream=True
 )
 
@@ -337,7 +337,7 @@ Make the output extremely detailed, formal, and high-fidelity (at least 1200 wor
 
     has_nvidia = nvidia_key or (NVIDIA_API_KEY and not NVIDIA_API_KEY.startswith("nvapi-xxx") and NVIDIA_API_KEY != "")
     if not has_nvidia:
-        content = f"""# {req.title}
+        content = fr"""# {req.title}
 
 **Abstract**
 This paper presents a comprehensive investigation into {req.title.lower()} within the domain of {req.domain}. We propose a novel framework leveraging NVIDIA Nemotron 3's hybrid Transformer-Mamba architecture to achieve state-of-the-art performance. By marrying the global context mapping of multi-head self-attention with the linear-time recurrence relation of selective State Space Models (SSMs), our proposed architecture overcomes quadratic scaling complexities. Our experimental results demonstrate a 5x improvement in throughput and 40% reduction in computational overhead compared to baseline transformer models. The findings suggest significant implications for real-world deployment of large language models in resource-constrained environments.
