@@ -26,7 +26,7 @@ export default function MarkdownRenderer({ content }: { content: string }) {
             )
           },
           img: ({ src, alt }) => {
-            if (src?.startsWith('figure:')) {
+            if (typeof src === 'string' && src.startsWith('figure:')) {
               const figType = src.replace('figure:', '')
               return <CustomFigure type={figType} caption={alt} />
             }

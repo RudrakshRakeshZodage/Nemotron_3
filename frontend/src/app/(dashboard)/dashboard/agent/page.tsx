@@ -2,9 +2,10 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Bot, Play, ChevronDown, ChevronRight, Loader2, CheckCircle, ArrowRight, Sparkles, Code, Search, Lightbulb, Zap } from 'lucide-react'
+import { Bot, Play, ChevronDown, ChevronRight, Loader2, CheckCircle, ArrowRight, Sparkles, Code, Search, Lightbulb, Zap, Save, Check } from 'lucide-react'
 import MarkdownRenderer from '@/components/MarkdownRenderer'
-import { runAgent } from '@/lib/api'
+import { runAgent, saveProject } from '@/lib/api'
+import { saveLocalProject } from '@/lib/projectsStore'
 
 interface AgentStep { step: number; title: string; description: string; output: string }
 
@@ -46,6 +47,45 @@ export default function AgentPage() {
       setSteps([{ step: 1, title: 'Error', description: 'Could not connect to agent backend.', output: 'Make sure the FastAPI server is running on port 8000.' }])
     } finally {
       setLoading(false)
+    }
+  }
+
+  const [saved, setSaved] = useState(false)
+  const [saving, setSaving] = useState(false)
+
+  const handleSave = async () => {
+    if (steps.length === 0 || saving) return
+    setSaving(true)
+    try {
+      const title = `Agent: ${task.substring(0, 30)}${task.length > 30 ? '...' : ''}`
+      const description = `Nemotron 3 Agentic workflow to solve: ${task.substring(0, 60)}${task.length > 60 ? '...' : ''}`
+      const content = `# Agent Workflow: ${task}\n\n` + steps.map(s => `## Step ${s.step}: ${s.title}\n*Description*: ${s.description}\n\n### Output:\n${s.output}\n`).join('\n')
+      
+      saveLocalProject({
+        title,
+        description,
+        type: 'agent',
+        content
+      })
+
+      try {
+        await saveProject({
+          user_id: 'user_123',
+          title,
+          description,
+          content,
+          type: 'agent'
+        })
+      } catch (err) {
+        console.warn('Backend save bypassed:', err)
+      }
+
+      setSaved(true)
+      setTimeout(() => setSaved(false), 2000)
+    } catch (e) {
+      console.error(e)
+    } finally {
+      setSaving(false)
     }
   }
 
@@ -173,12 +213,15 @@ export default function AgentPage() {
             {done && (
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
                 style={{ padding: '20px 24px', background: 'rgba(118,185,0,0.08)', border: '1px solid rgba(118,185,0,0.25)', borderRadius: 12, display: 'flex', alignItems: 'center', gap: 12 }}>
-                <CheckCircle size={22} color="var(--nemo-green)" />
+                 <CheckCircle size={22} color="var(--nemo-green)" />
                 <div>
                   <div style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--nemo-green)' }}>Task completed!</div>
                   <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>All 4 steps executed successfully by Nemotron 3</div>
                 </div>
-                <button onClick={() => { setSteps([]); setTask(''); setDone(false) }} className="btn-primary" style={{ marginLeft: 'auto', padding: '8px 18px', fontSize: '0.8rem' }}>
+                <button onClick={handleSave} className="btn-secondary" style={{ marginLeft: 'auto', padding: '8px 18px', fontSize: '0.8rem', gap: 6, display: 'flex', alignItems: 'center' }} disabled={saving}>
+                  {saved ? <><Check size={13} color="var(--nemo-green)" /> Saved</> : <><Save size={13} /> Save to Projects</>}
+                </button>
+                <button onClick={() => { setSteps([]); setTask(''); setDone(false); setSaved(false) }} className="btn-primary" style={{ padding: '8px 18px', fontSize: '0.8rem' }}>
                   New Task <ArrowRight size={13} />
                 </button>
               </motion.div>

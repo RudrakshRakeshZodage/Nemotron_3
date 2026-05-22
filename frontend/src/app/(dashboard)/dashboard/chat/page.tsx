@@ -4,8 +4,9 @@ import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Send, Bot, User, Copy, RotateCcw, Mic, MicOff, Trash2, Save, Plus, ChevronDown, Check, Zap } from 'lucide-react'
 import MarkdownRenderer from '@/components/MarkdownRenderer'
-import { streamChat } from '@/lib/api'
+import { streamChat, saveProject } from '@/lib/api'
 import { copyToClipboard } from '@/lib/utils'
+import { saveLocalProject } from '@/lib/projectsStore'
 
 interface Message { id: string; role: 'user' | 'assistant'; content: string; tokens?: number }
 
@@ -34,6 +35,45 @@ export default function ChatPage() {
   const bottomRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const recognitionRef = useRef<any>(null)
+  const [saving, setSaving] = useState(false)
+  const [saved, setSaved] = useState(false)
+
+  const handleSaveProject = async () => {
+    if (messages.length === 0 || saving) return
+    setSaving(true)
+    try {
+      const firstMsg = messages.find(m => m.role === 'user')?.content || 'Chat Session'
+      const title = firstMsg.length > 30 ? firstMsg.substring(0, 30) + '...' : firstMsg
+      const description = `AI Chat Session exploring ${selectedModel.label} with ${messages.length} messages.`
+      const content = messages.map(m => `### ${m.role === 'user' ? 'User' : 'Assistant'}\n\n${m.content}\n`).join('\n')
+      
+      saveLocalProject({
+        title,
+        description,
+        type: 'chat',
+        content
+      })
+
+      try {
+        await saveProject({
+          user_id: 'user_123',
+          title,
+          description,
+          content,
+          type: 'chat'
+        })
+      } catch (err) {
+        console.warn('Backend save bypassed:', err)
+      }
+
+      setSaved(true)
+      setTimeout(() => setSaved(false), 2000)
+    } catch (e) {
+      console.error(e)
+    } finally {
+      setSaving(false)
+    }
+  }
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [messages])
 
@@ -135,6 +175,9 @@ export default function ChatPage() {
               )}
             </AnimatePresence>
           </div>
+          <button onClick={handleSaveProject} className="btn-ghost" style={{ color: saved ? 'var(--nemo-green)' : 'inherit' }} title="Save chat to projects" disabled={messages.length === 0 || saving}>
+            {saved ? <Check size={15} /> : <Save size={15} />}
+          </button>
           <button onClick={() => setMessages([])} className="btn-ghost" title="New chat"><Plus size={16} /></button>
           <button onClick={() => { setMessages([]); }} className="btn-ghost" title="Clear"><Trash2 size={15} /></button>
         </div>

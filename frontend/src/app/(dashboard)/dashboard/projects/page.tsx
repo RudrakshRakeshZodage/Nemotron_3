@@ -1,20 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { FolderOpen, Trash2, ExternalLink, Download, Search, Plus, FileText, MessageSquare, BookOpen } from 'lucide-react'
+import { FolderOpen, Trash2, Download, Search, Plus, FileText, MessageSquare, BookOpen } from 'lucide-react'
 import Link from 'next/link'
 import { downloadMarkdown } from '@/lib/utils'
-
-interface Project { id: string; title: string; description: string; type: 'chat' | 'blog' | 'paper' | 'agent'; content: string; createdAt: string }
-
-const mockProjects: Project[] = [
-  { id: '1', title: 'Python Web Scraper Agent', description: 'Built a full async web scraper using BeautifulSoup4 with rate limiting and proxy support.', type: 'agent', content: '# Python Web Scraper\n\nFull async implementation using BeautifulSoup4...', createdAt: '2026-04-07' },
-  { id: '2', title: 'NVIDIA Nemotron 3 Blog', description: 'Comprehensive blog post about Nemotron 3 architecture and use cases.', type: 'blog', content: '# NVIDIA Nemotron 3: The Future of AI\n\n...', createdAt: '2026-04-06' },
-  { id: '3', title: 'LLM Efficiency Research Paper', description: 'Academic paper on Mixture-of-Experts and multi-token prediction.', type: 'paper', content: '# LLM Efficiency Research\n\n**Abstract**: ...', createdAt: '2026-04-05' },
-  { id: '4', title: 'React Dashboard Chat', description: 'AI chat session exploring React architecture patterns.', type: 'chat', content: '# Chat: React Architecture\n\nUser: Explain useCallback vs useMemo...', createdAt: '2026-04-04' },
-  { id: '5', title: 'ML Pipeline for NLP', description: 'End-to-end ML pipeline for sentiment analysis on social media data.', type: 'agent', content: '# ML Pipeline\n\nStep 1: Data collection...', createdAt: '2026-04-03' },
-]
+import { getLocalProjects, deleteLocalProject, Project } from '@/lib/projectsStore'
 
 const typeConfig = {
   chat: { icon: MessageSquare, color: '#76b900', label: 'Chat' },
@@ -24,9 +15,13 @@ const typeConfig = {
 }
 
 export default function ProjectsPage() {
-  const [projects, setProjects] = useState<Project[]>(mockProjects)
+  const [projects, setProjects] = useState<Project[]>([])
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState<string>('all')
+
+  useEffect(() => {
+    setProjects(getLocalProjects())
+  }, [])
 
   const filtered = projects.filter(p => {
     const matchSearch = p.title.toLowerCase().includes(search.toLowerCase()) || p.description.toLowerCase().includes(search.toLowerCase())
@@ -34,7 +29,10 @@ export default function ProjectsPage() {
     return matchSearch && matchFilter
   })
 
-  const deleteProject = (id: string) => setProjects(prev => prev.filter(p => p.id !== id))
+  const deleteProject = (id: string) => {
+    deleteLocalProject(id)
+    setProjects(prev => prev.filter(p => p.id !== id))
+  }
 
   return (
     <div style={{ padding: '40px', minHeight: '100vh', maxWidth: 1100 }}>

@@ -2,10 +2,11 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { FileText, Loader2, Download, Copy, Check, Sparkles, ChevronDown } from 'lucide-react'
+import { FileText, Loader2, Download, Copy, Check, Sparkles, ChevronDown, Save } from 'lucide-react'
 import MarkdownRenderer from '@/components/MarkdownRenderer'
-import { generateBlog } from '@/lib/api'
+import { generateBlog, saveProject } from '@/lib/api'
 import { downloadMarkdown, copyToClipboard } from '@/lib/utils'
+import { saveLocalProject } from '@/lib/projectsStore'
 
 const tones = ['professional', 'casual', 'technical', 'inspirational', 'humorous']
 const lengths = ['short', 'medium', 'long']
@@ -43,6 +44,41 @@ export default function BlogPage() {
     if (!result) return
     copyToClipboard(result.content)
     setCopied(true); setTimeout(() => setCopied(false), 2000)
+  }
+
+  const [saved, setSaved] = useState(false)
+  const [saving, setSaving] = useState(false)
+
+  const handleSave = async () => {
+    if (!result || saving) return
+    setSaving(true)
+    try {
+      saveLocalProject({
+        title: result.title,
+        description: `SEO-optimized blog about: ${topic.substring(0, 60)}${topic.length > 60 ? '...' : ''}`,
+        type: 'blog',
+        content: result.content
+      })
+
+      try {
+        await saveProject({
+          user_id: 'user_123',
+          title: result.title,
+          description: `SEO-optimized blog about: ${topic.substring(0, 60)}${topic.length > 60 ? '...' : ''}`,
+          content: result.content,
+          type: 'blog'
+        })
+      } catch (err) {
+        console.warn('Backend save bypassed:', err)
+      }
+
+      setSaved(true)
+      setTimeout(() => setSaved(false), 2000)
+    } catch (e) {
+      console.error(e)
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (
@@ -122,6 +158,9 @@ export default function BlogPage() {
                   <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>~{result.word_count} words · {tone} · {length}</span>
                 </div>
                 <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
+                  <button onClick={handleSave} className="btn-ghost" style={{ fontSize: '0.78rem', border: '1px solid var(--border-color)', borderRadius: 8, color: saved ? 'var(--nemo-green)' : 'inherit' }} disabled={saving}>
+                    {saved ? <><Check size={13} /> Saved</> : <><Save size={13} /> Save</>}
+                  </button>
                   <button onClick={handleCopy} className="btn-ghost" style={{ fontSize: '0.78rem', border: '1px solid var(--border-color)', borderRadius: 8 }}>
                     {copied ? <><Check size={13} /> Copied</> : <><Copy size={13} /> Copy</>}
                   </button>

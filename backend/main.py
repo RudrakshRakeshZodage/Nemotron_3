@@ -238,7 +238,15 @@ Return ONLY the JSON array, no markdown, no explanation."""
 
 @app.post("/generate-blog")
 async def generate_blog(req: BlogRequest, request: Request):
-    nvidia_key = reques    has_nvidia = nvidia_key or (NVIDIA_API_KEY and not NVIDIA_API_KEY.startswith("nvapi-xxx") and NVIDIA_API_KEY != "")
+    nvidia_key = request.headers.get("x-nvidia-api-key", "")
+    openrouter_key = request.headers.get("x-openrouter-api-key", "")
+    prompt = f"""Write a detailed, high-fidelity blog post about "{req.topic}" with a {req.tone} tone and {req.length} length.
+Include engaging subheadings, markdown formatting, lists, code snippets if applicable, and explicitly embed the following image hooks:
+- A banner image at the top: `![NemoCore AI Banner](figure:blog-banner)`
+- A chart showing adoption/performance: `![Generative AI Adoption Trend](figure:blog-chart)`
+Make it informative, structured, and at least 800 words."""
+
+    has_nvidia = nvidia_key or (NVIDIA_API_KEY and not NVIDIA_API_KEY.startswith("nvapi-xxx") and NVIDIA_API_KEY != "")
     if not has_nvidia:
         content = f"""# {req.topic}: The Future of AI is Here
 
@@ -419,14 +427,6 @@ This work demonstrates the effectiveness of combining transformer and state-spac
     try:
         content = await generate_full(prompt, nvidia_key=nvidia_key, openrouter_key=openrouter_key)
         return {"title": req.title, "content": content, "domain": req.domain, "mock": False}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))     }
-
-    try:
-        content = await generate_full(prompt, nvidia_key=nvidia_key, openrouter_key=openrouter_key)
-        lines = content.strip().split("\n")
-        title = lines[0].lstrip("#").strip() if lines else req.topic
-        return {"title": title, "content": content, "word_count": len(content.split()), "topic": req.topic, "mock": False}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
