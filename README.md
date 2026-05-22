@@ -137,7 +137,9 @@ flowchart TD
 
 ---
 
-## 🔄 Deployment & Request Workflow Architecture
+## 🔄 Deployment Architecture
+
+This diagram illustrates how changes pushed to GitHub trigger independent builds on Vercel (frontend) and Render (backend).
 
 ```mermaid
 flowchart TD
@@ -155,45 +157,87 @@ flowchart TD
     end
 
     subgraph RENDER["🐍 Render (Backend Hosting)"]
-        R_BUILD["Render Build/Deploy\n(Python 3.11.0 from root .python-version)"]
+        R_BUILD["Render Build/Deploy\n(Python 3.11 from root .python-version)"]
         R_SVC["FastAPI App Service\n(Runs Uvicorn on $PORT)"]
     end
 
-    subgraph CLIENT_BROWSER["🌐 User Client Browser"]
-        CLIENT_UI["NemoCore App UI\n(Statically served from Vercel)"]
-        CLIENT_REQ["Fetch Request\n(Client-side API call with x-nvidia-api-key)"]
-    end
-
-    subgraph PROVIDERS["🤖 AI Providers (NIMs)"]
-        NVIDIA_API["NVIDIA NIM API\n(integrate.api.nvidia.com)"]
-        OR_API["OpenRouter API\n(openrouter.ai/api)"]
-    end
-
-    %% Development & Deploy Workflow
+    %% Deployment Workflow
     GIT_PUSH --> REPO
     REPO -->|"Deploy Trigger"| V_BUILD
     REPO -->|"Deploy Trigger"| R_BUILD
     V_BUILD --> V_CDN
     R_BUILD --> R_SVC
 
-    %% Request Workflow
-    CLIENT_UI -->|"1. User starts Chat/Agent"| CLIENT_REQ
-    CLIENT_REQ -->|"2. HTTPS Request (with CORS headers)"| R_SVC
-    R_SVC -->|"3. Verifies keys & forwards request"| PROVIDERS
-    PROVIDERS -->|"4. Server-Sent Events (SSE) Stream"| R_SVC
-    R_SVC -->|"5. Proxies stream back to browser"| CLIENT_UI
-
     %% Styling
     classDef git fill:#1e293b,stroke:#f43f5e,stroke-width:2px,color:#fff
     classDef vercel fill:#000,stroke:#fff,stroke-width:2px,color:#fff
     classDef render fill:#0f172a,stroke:#00f5d4,stroke-width:2px,color:#fff
-    classDef client fill:#0f172a,stroke:#76b900,stroke-width:2px,color:#fff
-    classDef provider fill:#0f172a,stroke:#a855f7,stroke-width:2px,color:#fff
 
     class DEV_PC,GIT_PUSH,REPO,CLOUD git
     class VERCEL,V_BUILD,V_CDN vercel
     class RENDER,R_BUILD,R_SVC render
-    class CLIENT_BROWSER,CLIENT_UI,CLIENT_REQ client
+```
+
+---
+
+## ⚡ Request & Content Generation Dataflow
+
+This diagram represents the step-by-step dataflow of generating content (Blog, Research Paper, Agent Plan, Chat) and persisting it locally without database requirements.
+
+```mermaid
+flowchart TD
+    subgraph CLIENT_BROWSER["🌐 User Client Browser (Next.js)"]
+        CLIENT_UI["NemoCore App UI\n(Dashboard, Chat, Agent, Blog, Paper)"]
+        STORE["📦 projectsStore\n(localStorage Persistence)"]
+        IEEE_ENGINE["📄 IEEE Layout Engine\n(Dual-column, Times New Roman, LaTeX Math)"]
+        FIG_INJECT["🖼️ Figure Injection\n(Transforms figure:xxx to rich cards)"]
+        LS["🔑 API Keys Storage\n(localStorage)"]
+    end
+
+    subgraph BACKEND["🐍 FastAPI Backend (Render)"]
+        CORS["🛡️ CORS Middleware\n(Allows *.vercel.app)"]
+        ROUTES["🚀 Routers\n(/chat, /agent, /generate-blog, /generate-paper)"]
+        MOCK_GEN["📦 Mock Response Templates\n(Rich, structured markdown & latex)"]
+        LIVE_CLIENT["📡 Async HTTPX Client\n(Connects to LLM endpoints)"]
+        KEY_CHECK{"🔑 Key Verification?\nChecks headers for x-nvidia-api-key"}
+    end
+
+    subgraph PROVIDERS["🤖 AI Providers (NIMs)"]
+        NVIDIA_API["NVIDIA NIM API\n(llama-3.1-nemotron-70b-instruct)"]
+        OR_API["OpenRouter API\n(nemotron-3-nano-30b-a3b)"]
+    end
+
+    %% Generation and Save Dataflow
+    CLIENT_UI -->|"1. Fetch keys"| LS
+    CLIENT_UI -->|"2. Dispatch POST with x-nvidia-api-key"| CORS
+    CORS --> ROUTES
+    ROUTES --> KEY_CHECK
+    
+    KEY_CHECK -->|"Valid Key Present"| LIVE_CLIENT
+    KEY_CHECK -->|"No Key (Demo Mode)"| MOCK_GEN
+    
+    LIVE_CLIENT -->|"3. Query NIM API"| NVIDIA_API
+    LIVE_CLIENT -->|"3. Query OpenRouter"| OR_API
+    
+    NVIDIA_API -->|"4. Text/SSE Response"| ROUTES
+    OR_API -->|"4. Text/SSE Response"| ROUTES
+    MOCK_GEN -->|"4. Static Markdown Payload"| ROUTES
+    
+    ROUTES -->|"5. Return Generated Content"| CLIENT_UI
+    
+    %% Post-processing
+    CLIENT_UI -->|"Render visual figures"| FIG_INJECT
+    CLIENT_UI -->|"Format Paper"| IEEE_ENGINE
+    CLIENT_UI -->|"6. Click 'Save to Projects'"| STORE
+    STORE -->|"Read/Write"| LS
+
+    %% Styling
+    classDef client fill:#0f172a,stroke:#76b900,stroke-width:2px,color:#fff
+    classDef render fill:#0f172a,stroke:#00f5d4,stroke-width:2px,color:#fff
+    classDef provider fill:#0f172a,stroke:#a855f7,stroke-width:2px,color:#fff
+
+    class CLIENT_BROWSER,CLIENT_UI,STORE,IEEE_ENGINE,FIG_INJECT,LS client
+    class BACKEND,CORS,ROUTES,MOCK_GEN,LIVE_CLIENT,KEY_CHECK render
     class PROVIDERS,NVIDIA_API,OR_API provider
 ```
 

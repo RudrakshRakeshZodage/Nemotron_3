@@ -369,7 +369,7 @@ Our proposed framework integrates three key innovations: Hybrid Attention-SSM bl
 ## A. Hybrid Block Architecture
 We combine transformer attention mechanisms with Mamba's selective state-space models to balance global and local context modeling. The state transition equation of the selective SSM layer is defined as:
 
-$$h_t = A h_{t-1} + B x_t \qquad (1)$$
+$$h_t = A h_{{t-1}} + B x_t \qquad (1)$$
 
 $$y_t = C h_t + D x_t \qquad (2)$$
 
@@ -378,7 +378,7 @@ where $A$, $B$, $C$, and $D$ are parameters parameterized dynamically by input t
 ## B. Latent Mixture-of-Experts Router
 Dynamic routing assigns tokens to specialized expert networks, reducing active parameters during inference by 60%. The gating routing function $G(x)$ determines the activation coefficient for each expert $E_i$:
 
-$$G(x) = \text{Softmax}(\text{TopK}(x \cdot W_g + \epsilon, k)) \qquad (3)$$
+$$G(x) = \text{{Softmax}}(\text{{TopK}}(x \cdot W_g + \epsilon, k)) \qquad (3)$$
 
 Here, the architecture of the hybrid transformer-mamba framework is detailed below:
 
