@@ -2,6 +2,9 @@
 
 A production-grade AI SaaS platform built for the NVIDIA Nemotron 3 Workshop.
 
+🚀 **Live Demo:** [https://nemotron-3.vercel.app](https://nemotron-3.vercel.app)
+
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-nemotron--3.vercel.app-76b900?style=for-the-badge&logo=vercel)](https://nemotron-3.vercel.app)
 ![NemoCore AI](https://img.shields.io/badge/Powered%20by-NVIDIA%20Nemotron%203-76b900?style=for-the-badge)
 ![Next.js](https://img.shields.io/badge/Frontend-Next.js%2016-black?style=for-the-badge)
 ![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688?style=for-the-badge)
