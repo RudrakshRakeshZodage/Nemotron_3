@@ -31,6 +31,104 @@ A production-grade AI SaaS platform built for the NVIDIA Nemotron 3 Workshop.
 
 ---
 
+## ⚡ Request & Content Generation Dataflow
+
+This diagram represents the step-by-step dataflow of generating content (Blog, Research Paper, Agent Plan, Chat) and persisting it locally without database requirements.
+
+```mermaid
+flowchart TD
+    subgraph CLIENT_BROWSER["🌐 User Client Browser (Next.js)"]
+        CLIENT_UI["NemoCore App UI\n(Dashboard, Chat, Agent, Blog, Paper)"]
+        STORE["📦 projectsStore\n(localStorage Persistence)"]
+        IEEE_ENGINE["📄 IEEE Layout Engine\n(Dual-column, Times New Roman, LaTeX Math)"]
+        FIG_INJECT["🖼️ Figure Injection\n(Transforms figure:xxx to rich cards)"]
+        LS["🔑 API Keys Storage\n(localStorage)"]
+    end
+
+    subgraph BACKEND["🐍 FastAPI Backend (Render)"]
+        CORS["🛡️ CORS Middleware\n(Allows *.vercel.app)"]
+        ROUTES["🚀 Routers\n(/chat, /agent, /generate-blog, /generate-paper)"]
+        MOCK_GEN["📦 Mock Response Templates\n(Rich, structured markdown & latex)"]
+        LIVE_CLIENT["📡 Async HTTPX Client\n(Connects to LLM endpoints)"]
+        KEY_CHECK{"🔑 Key Verification?\nChecks headers for x-nvidia-api-key"}
+    end
+
+    subgraph PROVIDERS["🤖 AI Providers (NIMs)"]
+        NVIDIA_API["NVIDIA NIM API\n(llama-3.1-nemotron-70b-instruct)"]
+        OR_API["OpenRouter API\n(nemotron-3-nano-30b-a3b)"]
+    end
+
+    %% Generation and Save Dataflow
+    CLIENT_UI -->|"1. Fetch keys"| LS
+    CLIENT_UI -->|"2. Dispatch POST with x-nvidia-api-key"| CORS
+    CORS --> ROUTES
+    ROUTES --> KEY_CHECK
+    
+    KEY_CHECK -->|"Valid Key Present"| LIVE_CLIENT
+    KEY_CHECK -->|"No Key (Demo Mode)"| MOCK_GEN
+    
+    LIVE_CLIENT -->|"3. Query NIM API"| NVIDIA_API
+    LIVE_CLIENT -->|"3. Query OpenRouter"| OR_API
+    
+    NVIDIA_API -->|"4. Text/SSE Response"| ROUTES
+    OR_API -->|"4. Text/SSE Response"| ROUTES
+    MOCK_GEN -->|"4. Static Markdown Payload"| ROUTES
+    
+    ROUTES -->|"5. Return Generated Content"| CLIENT_UI
+    
+    %% Post-processing
+    CLIENT_UI -->|"Render visual figures"| FIG_INJECT
+    CLIENT_UI -->|"Format Paper"| IEEE_ENGINE
+    CLIENT_UI -->|"6. Click 'Save to Projects'"| STORE
+    STORE -->|"Read/Write"| LS
+
+    %% Styling
+    classDef client fill:#0f172a,stroke:#76b900,stroke-width:2px,color:#fff
+    classDef render fill:#0f172a,stroke:#00f5d4,stroke-width:2px,color:#fff
+    classDef provider fill:#0f172a,stroke:#a855f7,stroke-width:2px,color:#fff
+
+    class CLIENT_BROWSER,CLIENT_UI,STORE,IEEE_ENGINE,FIG_INJECT,LS client
+    class BACKEND,CORS,ROUTES,MOCK_GEN,LIVE_CLIENT,KEY_CHECK render
+    class PROVIDERS,NVIDIA_API,OR_API provider
+```
+
+---
+
+## 🔑 API Key Flow (No Login Required)
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant Browser as Browser (localStorage)
+    participant Modal as ApiKeyModal
+    participant Settings as Settings Page
+    participant API as api.ts
+    participant Backend as FastAPI (Render)
+    participant NVIDIA as NVIDIA NIM API
+
+    User->>Browser: Visit /dashboard (first time)
+    Browser->>Modal: No keys found → show modal
+    User->>Modal: Enter NVIDIA API key
+    Modal->>Browser: localStorage.setItem('nemocore_nvidia_key', key)
+    Modal->>User: Redirect to dashboard
+
+    User->>Browser: Send chat message
+    Browser->>API: streamChat(messages)
+    API->>Browser: getApiHeaders() → reads localStorage
+    API->>Backend: POST /chat + x-nvidia-api-key header
+    Backend->>Backend: Extract header key → override env key
+    Backend->>NVIDIA: Authenticated API call
+    NVIDIA-->>Backend: SSE token stream
+    Backend-->>Browser: Proxied SSE stream
+    Browser-->>User: Live streaming response
+
+    User->>Settings: Update key in Settings page
+    Settings->>Browser: localStorage.setItem(new key)
+    Note over Browser,NVIDIA: Next request auto-uses new key
+```
+
+---
+
 ## 🏗️ System Architecture
 
 ```mermaid
@@ -180,104 +278,6 @@ flowchart TD
     class DEV_PC,GIT_PUSH,REPO,CLOUD git
     class VERCEL,V_BUILD,V_CDN vercel
     class RENDER,R_BUILD,R_SVC render
-```
-
----
-
-## ⚡ Request & Content Generation Dataflow
-
-This diagram represents the step-by-step dataflow of generating content (Blog, Research Paper, Agent Plan, Chat) and persisting it locally without database requirements.
-
-```mermaid
-flowchart TD
-    subgraph CLIENT_BROWSER["🌐 User Client Browser (Next.js)"]
-        CLIENT_UI["NemoCore App UI\n(Dashboard, Chat, Agent, Blog, Paper)"]
-        STORE["📦 projectsStore\n(localStorage Persistence)"]
-        IEEE_ENGINE["📄 IEEE Layout Engine\n(Dual-column, Times New Roman, LaTeX Math)"]
-        FIG_INJECT["🖼️ Figure Injection\n(Transforms figure:xxx to rich cards)"]
-        LS["🔑 API Keys Storage\n(localStorage)"]
-    end
-
-    subgraph BACKEND["🐍 FastAPI Backend (Render)"]
-        CORS["🛡️ CORS Middleware\n(Allows *.vercel.app)"]
-        ROUTES["🚀 Routers\n(/chat, /agent, /generate-blog, /generate-paper)"]
-        MOCK_GEN["📦 Mock Response Templates\n(Rich, structured markdown & latex)"]
-        LIVE_CLIENT["📡 Async HTTPX Client\n(Connects to LLM endpoints)"]
-        KEY_CHECK{"🔑 Key Verification?\nChecks headers for x-nvidia-api-key"}
-    end
-
-    subgraph PROVIDERS["🤖 AI Providers (NIMs)"]
-        NVIDIA_API["NVIDIA NIM API\n(llama-3.1-nemotron-70b-instruct)"]
-        OR_API["OpenRouter API\n(nemotron-3-nano-30b-a3b)"]
-    end
-
-    %% Generation and Save Dataflow
-    CLIENT_UI -->|"1. Fetch keys"| LS
-    CLIENT_UI -->|"2. Dispatch POST with x-nvidia-api-key"| CORS
-    CORS --> ROUTES
-    ROUTES --> KEY_CHECK
-    
-    KEY_CHECK -->|"Valid Key Present"| LIVE_CLIENT
-    KEY_CHECK -->|"No Key (Demo Mode)"| MOCK_GEN
-    
-    LIVE_CLIENT -->|"3. Query NIM API"| NVIDIA_API
-    LIVE_CLIENT -->|"3. Query OpenRouter"| OR_API
-    
-    NVIDIA_API -->|"4. Text/SSE Response"| ROUTES
-    OR_API -->|"4. Text/SSE Response"| ROUTES
-    MOCK_GEN -->|"4. Static Markdown Payload"| ROUTES
-    
-    ROUTES -->|"5. Return Generated Content"| CLIENT_UI
-    
-    %% Post-processing
-    CLIENT_UI -->|"Render visual figures"| FIG_INJECT
-    CLIENT_UI -->|"Format Paper"| IEEE_ENGINE
-    CLIENT_UI -->|"6. Click 'Save to Projects'"| STORE
-    STORE -->|"Read/Write"| LS
-
-    %% Styling
-    classDef client fill:#0f172a,stroke:#76b900,stroke-width:2px,color:#fff
-    classDef render fill:#0f172a,stroke:#00f5d4,stroke-width:2px,color:#fff
-    classDef provider fill:#0f172a,stroke:#a855f7,stroke-width:2px,color:#fff
-
-    class CLIENT_BROWSER,CLIENT_UI,STORE,IEEE_ENGINE,FIG_INJECT,LS client
-    class BACKEND,CORS,ROUTES,MOCK_GEN,LIVE_CLIENT,KEY_CHECK render
-    class PROVIDERS,NVIDIA_API,OR_API provider
-```
-
----
-
-## 🔑 API Key Flow (No Login Required)
-
-```mermaid
-sequenceDiagram
-    actor User
-    participant Browser as Browser (localStorage)
-    participant Modal as ApiKeyModal
-    participant Settings as Settings Page
-    participant API as api.ts
-    participant Backend as FastAPI (Render)
-    participant NVIDIA as NVIDIA NIM API
-
-    User->>Browser: Visit /dashboard (first time)
-    Browser->>Modal: No keys found → show modal
-    User->>Modal: Enter NVIDIA API key
-    Modal->>Browser: localStorage.setItem('nemocore_nvidia_key', key)
-    Modal->>User: Redirect to dashboard
-
-    User->>Browser: Send chat message
-    Browser->>API: streamChat(messages)
-    API->>Browser: getApiHeaders() → reads localStorage
-    API->>Backend: POST /chat + x-nvidia-api-key header
-    Backend->>Backend: Extract header key → override env key
-    Backend->>NVIDIA: Authenticated API call
-    NVIDIA-->>Backend: SSE token stream
-    Backend-->>Browser: Proxied SSE stream
-    Browser-->>User: Live streaming response
-
-    User->>Settings: Update key in Settings page
-    Settings->>Browser: localStorage.setItem(new key)
-    Note over Browser,NVIDIA: Next request auto-uses new key
 ```
 
 ---
