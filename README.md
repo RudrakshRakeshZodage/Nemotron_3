@@ -1,6 +1,6 @@
 # NemoCore AI – Agentic AI Platform powered by NVIDIA Nemotron 3
 
-A production-grade AI SaaS platform built for the NVIDIA Nemotron 3 Workshop.
+A production-grade AI SaaS platform built for the NVIDIA Nemotron 3 Workshop. NemoCore AI showcases how to construct agentic systems, document generators, research assistants, and live telemetry platforms utilizing high-performance NVIDIA NIMs.
 
 > [!TIP]
 > 🚀 **Live Demo:** **[https://nemotron-3.vercel.app](https://nemotron-3.vercel.app)**
@@ -282,157 +282,279 @@ flowchart TD
 
 ---
 
-## 🚀 Features
+## 🚀 Key Features Breakdown
 
-| Feature | Description |
-|---|---|
-| 🏠 **Landing Page** | Premium hero, features, pricing, testimonials |
-| 🔑 **No-Login API Key Setup** | Keys stored in localStorage, injected per-request |
-| 💎 **API Key Modal** | Glassmorphic first-visit modal with live validation |
-| 📊 **Dashboard** | Stats, quick actions, GPU metrics |
-| 💬 **AI Chat** | Streaming, markdown, voice input, model selector |
-| 🤖 **Agent Studio** | Agentic task decomposition with step timeline |
-| 📂 **Projects** | Save, search, filter, download projects |
-| 📝 **Blog Generator** | Topic → full SEO blog with tone/length control |
-| 📄 **Paper Generator** | Academic papers with citations |
-| 📊 **Analytics** | Recharts: queries, tokens, latency, model usage |
-| ⚙️ **Settings** | Profile, API key (synced to localStorage), theme |
+- 🏠 **Premium Hub Landing Page**: Complete landing page experience featuring an interactive pricing matrix, live showcase, testimonials, and glassmorphic card grids.
+- 🔑 **Decentralized API Key Architecture**: Safe design architecture where user keys (`nvapi-...` or `sk-or-...`) are managed completely on the client-side (`localStorage`). The FastAPI backend proxies requests without retaining logs of keys, guaranteeing full confidentiality.
+- 💬 **Advanced AI Chat Room**: Implements real-time Server-Sent Events (SSE) streaming, deep markdown syntax parsing (via `react-markdown`), LaTeX formula compilation, and custom syntax themes for code block rendering.
+- 🤖 **Agent Studio**: Generates dynamic execution flows decomposing heavy user prompts into a 4-step interactive pipeline. Displays stateful completion badges and live outputs.
+- 📄 **IEEE Layout Academic Engine**: Adapts structural LaTeX, multi-column simulation grids, Times New Roman standard styling, and custom figure integrations (`figure:architecture`, `figure:chart`) into clean academic formats.
+- 📝 **SEO Content Blog Suite**: Interactive generator accepting topic, length, and tone inputs. Automatically inserts image hooks (`figure:blog-banner` and `figure:blog-chart`) that the UI displays as high-fidelity visual cards.
+- 📊 **Telemetry & Analytics**: Uses Recharts to visualize real-time simulated platform query throughput, latency, token ingestion rates, and LLM distribution metrics.
 
 ---
 
-## 📁 Folder Structure
+## 🛠️ API Reference (FastAPI Backend)
+
+All endpoints accept client-passed override API keys in request headers. If no keys are specified, the API gracefully defaults to its server env keys. If those are absent, it routes to **Demo Mode (Mock Response Generation)**.
+
+### Custom Headers
+
+| Header | Description |
+|---|---|
+| `x-nvidia-api-key` | Client's custom NVIDIA NIM API Key |
+| `x-openrouter-api-key` | Client's custom OpenRouter API Key |
+
+### Endpoints
+
+#### 1. Chat Stream
+* **URL:** `/chat`
+* **Method:** `POST`
+* **Payload:**
+```json
+{
+  "messages": [
+    {"role": "user", "content": "Explain Mamba vs Transformers"}
+  ],
+  "model": "nvidia/llama-3.1-nemotron-70b-instruct",
+  "temperature": 0.7,
+  "max_tokens": 1024
+}
+```
+* **Response:** Server-Sent Events (SSE) stream (`text/event-stream`).
+
+#### 2. Agent Workflow Planner
+* **URL:** `/agent`
+* **Method:** `POST`
+* **Payload:**
+```json
+{
+  "task": "Create a secure user login system in Node.js",
+  "model": "nvidia/llama-3.1-nemotron-70b-instruct"
+}
+```
+* **Response:**
+```json
+{
+  "task": "Create a secure user login system in Node.js",
+  "mock": false,
+  "steps": [
+    {
+      "step": 1,
+      "title": "Establish DB Connection & Schema",
+      "description": "Initialize postgres db and layout user credentials table with schema validation.",
+      "output": "Database schema finalized."
+    }
+    // ... total 4 steps
+  ]
+}
+```
+
+#### 3. Blog Post Suite
+* **URL:** `/generate-blog`
+* **Method:** `POST`
+* **Payload:**
+```json
+{
+  "topic": "The Future of Edge AI Computing",
+  "tone": "professional",
+  "length": "medium"
+}
+```
+* **Response:**
+```json
+{
+  "title": "The Future of Edge AI Computing",
+  "content": "... Markdown with embedded figure tags ...",
+  "word_count": 850,
+  "topic": "The Future of Edge AI Computing",
+  "mock": false
+}
+```
+
+#### 4. IEEE Research Assistant
+* **URL:** `/generate-paper`
+* **Method:** `POST`
+* **Payload:**
+```json
+{
+  "title": "Latent Mixture-of-Experts with Multi-Token Predictors",
+  "domain": "Computer Science",
+  "keywords": ["Transformers", "MoE", "NVIDIA NIM"]
+}
+```
+* **Response:**
+```json
+{
+  "title": "Latent Mixture-of-Experts with Multi-Token Predictors",
+  "content": "... Full IEEE Academic styled text with sections (I, II, III etc.) ...",
+  "domain": "Computer Science",
+  "mock": false
+}
+```
+
+---
+
+## 📁 Detailed Folder Structure
 
 ```
 Nemotron_3/
 ├── frontend/                   # Next.js 16 App (→ Vercel)
 │   ├── src/
 │   │   ├── app/
-│   │   │   ├── page.tsx        # Landing page
-│   │   │   ├── (auth)/         # Login, Signup (redirect → /dashboard)
-│   │   │   └── (dashboard)/    # All dashboard pages
+│   │   │   ├── page.tsx        # Responsive Landing Hub
+│   │   │   ├── (auth)/         # Shell auth pathways (redirects to dashboard)
+│   │   │   └── (dashboard)/    # Dashboard layout enclosing:
+│   │   │       ├── page.tsx    # Telemetry metrics + welcome card
+│   │   │       ├── chat/       # Chat view with SSE streamer
+│   │   │       ├── agent/      # Agent Studio layout
+│   │   │       ├── blog/       # SEO Blog Post compiler
+│   │   │       ├── paper/      # LaTeX and IEEE formatting grid
+│   │   │       ├── projects/   # localStorage project cache browser
+│   │   │       ├── analytics/  # Recharts usage dashboard
+│   │   │       └── settings/   # localStorage API credentials settings
 │   │   ├── components/
-│   │   │   ├── ApiKeyModal.tsx  # First-visit API key prompt
-│   │   │   ├── DashboardShell.tsx
-│   │   │   ├── Sidebar.tsx
-│   │   │   └── MarkdownRenderer.tsx
+│   │   │   ├── ApiKeyModal.tsx # First-visit modal overlay
+│   │   │   ├── Sidebar.tsx     # Collapsible navigation drawer
+│   │   │   └── MarkdownRenderer.tsx # Contextual figure inject & parser
 │   │   └── lib/
-│   │       ├── api.ts          # All fetch calls + localStorage key injection
-│   │       └── utils.ts
-│   ├── .env.production         # NEXT_PUBLIC_API_URL (committed, no secrets)
-│   └── vercel.json             # Vercel deployment config
+│   │       ├── api.ts          # API Client + custom headers payload
+│   │       └── utils.ts        # Style and tailwind mixers
+│   ├── .env.production         # Next production target endpoints
+│   └── vercel.json             # Vercel deployment directives
 │
-├── backend/                    # FastAPI (→ Render)
-│   ├── main.py                 # Routes + NVIDIA/OpenRouter integration
-│   ├── requirements.txt
-│   ├── render.yaml             # Render deployment config
-│   └── .env                   # Local secrets (never committed)
+├── backend/                    # FastAPI App (→ Render)
+│   ├── main.py                 # Router logic, stream yielders & fallback mocks
+│   ├── requirements.txt        # Backend dependencies
+│   ├── render.yaml             # Render infrastructure blueprint
+│   └── .env                    # Local environmental overrides (ignored by Git)
 │
-└── README.md
+└── README.md                   # System Documentation
 ```
 
 ---
 
-## ⚡ Quick Start (Local)
+## ⚡ Quick Start (Local Setup)
 
-### 1. Clone & Install
+### Prerequisites
+* **Node.js**: v18 or newer (v20+ recommended)
+* **Python**: v3.11.x
+
+### 1. Configure the Backend
 
 ```bash
-# Frontend
-cd frontend
-npm install
-
-# Backend
+# Navigate to backend directory
 cd backend
+
+# Create virtual environment
 python -m venv venv
-.\venv\Scripts\activate        # Windows
+
+# Activate virtual environment
+# Windows:
+.\venv\Scripts\activate
+# macOS/Linux:
+source venv/bin/activate
+
+# Install dependencies
 pip install -r requirements.txt
+
+# Create local environment config
 cp .env.example .env
 ```
 
-### 2. Run Servers
+Edit the `.env` file to supply credentials if you have them:
+```env
+NVIDIA_API_KEY=nvapi-your-key-here
+OPENROUTER_API_KEY=sk-or-your-key-here
+FRONTEND_URL=http://localhost:3000
+```
+
+### 2. Configure the Frontend
 
 ```bash
-# Terminal 1 – Backend
-cd backend && .\venv\Scripts\activate
-uvicorn main:app --reload --port 8000
+# Navigate to frontend directory
+cd ../frontend
 
-# Terminal 2 – Frontend
+# Install node dependencies
+npm install
+```
+
+### 3. Spin Up Development Servers
+
+Run the backend API service (Terminal 1):
+```bash
+cd backend
+# Make sure your virtual environment is active!
+uvicorn main:app --reload --port 8000
+```
+
+Run the Next.js dev server (Terminal 2):
+```bash
 cd frontend
 npm run dev -- --port 3001
 ```
 
-Open **[http://localhost:3001](http://localhost:3001)** → the API key modal appears on first visit.
+Access the UI at **[http://localhost:3001](http://localhost:3001)**. 
 
-> **No API keys?** Click **"Use Demo Mode"** — all features work with simulated mock responses.
-
----
-
-## 🔑 Getting API Keys
-
-### NVIDIA Nemotron 3
-1. Go to [https://build.nvidia.com](https://build.nvidia.com)
-2. Sign in → **API Keys** → Create key
-3. Enter the `nvapi-...` key in the modal or Settings page
-
-### OpenRouter (Free Alternative)
-1. Go to [https://openrouter.ai](https://openrouter.ai)
-2. Sign in → **API Keys** → Create key
-3. Enter the `sk-or-...` key in the modal or Settings page
-4. Select the **Nemotron 3 Nano 30B A3B** model (free tier)
+* **No Credentials?** Select **"Use Demo Mode"** in the initial setup prompt to experience the platform features using simulated streams.
 
 ---
 
-## 🚀 Deployment
+## 🔑 Fetching NIM / API Credentials
 
-### Frontend → Vercel
+### NVIDIA Nemotron NIMs
+1. Register on the [NVIDIA Build Portal](https://build.nvidia.com).
+2. Browse to any supported model (e.g. `llama-3.1-nemotron-70b-instruct`).
+3. Click **Get API Key** and generate an token starting with `nvapi-`.
 
-1. Push repo to GitHub
-2. Import project on [vercel.com](https://vercel.com) → set **Root Directory** to `frontend`
-3. Add env var: `NEXT_PUBLIC_API_URL` = `https://your-render-url.onrender.com`
-4. Deploy ✅
-
-### Backend → Render
-
-1. Import repo on [render.com](https://render.com) → **New Web Service**
-2. Set **Root Directory** to `backend`
-3. Build: `pip install -r requirements.txt`
-4. Start: `uvicorn main:app --host 0.0.0.0 --port $PORT`
-5. Add env vars: `NVIDIA_API_KEY`, `OPENROUTER_API_KEY`, `FRONTEND_URL` (your Vercel URL)
-6. Deploy ✅
+### OpenRouter (Alternative Gateway)
+1. Join [OpenRouter.ai](https://openrouter.ai).
+2. Go to keys settings and create a new key (`sk-or-`).
+3. Deposit minimal balance for paid models, or use free tier models (e.g. `nvidia/nemotron-3-nano-30b-a3b`).
 
 ---
 
-## 🧠 Tech Stack
+## 🚀 Deployment Instructions
 
-| Layer | Technology |
+### Frontend → Vercel Deployment
+
+1. Initialize a Git repository and push your project to GitHub.
+2. Link the repository to your [Vercel account](https://vercel.com).
+3. Set the **Root Directory** field to `frontend`.
+4. Configure the Production Environment Variables:
+   * `NEXT_PUBLIC_API_URL`: `https://your-backend-api.onrender.com` (Your Render deployment URL)
+5. Hit **Deploy**.
+
+### Backend → Render Deployment
+
+1. Register on [Render](https://render.com).
+2. Connect your GitHub repository and select **New Web Service**.
+3. Set the **Root Directory** to `backend`.
+4. Fill configuration details:
+   * **Runtime**: `Python`
+   * **Build Command**: `pip install -r requirements.txt`
+   * **Start Command**: `uvicorn main:app --host 0.0.0.0 --port $PORT`
+5. Click **Advanced** and fill the Environment Variables:
+   * `NVIDIA_API_KEY`: `nvapi-xxx`
+   * `OPENROUTER_API_KEY`: `sk-or-xxx`
+   * `FRONTEND_URL`: `https://your-frontend-deployment.vercel.app`
+6. Click **Deploy Web Service**.
+
+---
+
+## 🧠 Technological Blueprint
+
+| Category | Tools & Libraries |
 |---|---|
-| Frontend | Next.js 16, TypeScript, Framer Motion, Vanilla CSS |
-| Backend | FastAPI, Python 3.11, httpx (async streaming) |
-| AI | NVIDIA NIM API (Nemotron 70B/8B/3B) + OpenRouter |
-| Key Storage | Browser localStorage (no server-side auth required) |
-| Hosting | Vercel (frontend) + Render (backend) |
-| Charts | Recharts |
-| Markdown | react-markdown + react-syntax-highlighter |
-| Icons | Lucide React |
-
----
-
-## 📸 Pages
-
-| Route | Description |
-|---|---|
-| `/` | Landing page |
-| `/login` | Auto-redirects → `/dashboard` |
-| `/signup` | Auto-redirects → `/dashboard` |
-| `/dashboard` | Home with stats + API key modal |
-| `/dashboard/chat` | AI Chat (streaming SSE) |
-| `/dashboard/agent` | Agent Studio (4-step planner) |
-| `/dashboard/projects` | Project manager |
-| `/dashboard/blog` | Blog generator |
-| `/dashboard/paper` | Research paper generator |
-| `/dashboard/analytics` | Usage charts |
-| `/dashboard/settings` | API keys + theme + notifications |
+| **Core Layout** | Next.js 16 (App Router), TypeScript, Tailwind CSS |
+| **Motion Physics** | Framer Motion (Transitions, orchestrations) |
+| **Microservices** | FastAPI, Python 3.11, httpx client |
+| **Integrations** | NVIDIA NIM API Gateway, OpenRouter Router |
+| **UI Telemetry** | Recharts (Responsive Line, Bar and Pie configurations) |
+| **Renderers** | react-markdown, react-syntax-highlighter (Prism themes) |
+| **Local Cache** | Browser localStorage (JSON-serialized local state store) |
 
 ---
 
 Built for the **NVIDIA Nemotron 3 Workshop 2026** 🟩
+
