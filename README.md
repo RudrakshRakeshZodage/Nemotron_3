@@ -2,6 +2,7 @@
 
 A production-grade AI SaaS platform built for the NVIDIA Nemotron 3 Workshop. NemoCore AI showcases how to construct agentic systems, document generators, research assistants, and live telemetry platforms utilizing high-performance NVIDIA NIMs.
 
+
 > [!TIP]
 > 🚀 **Live Demo:** **[https://nemotron-3.vercel.app](https://nemotron-3.vercel.app)**
 
